@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package protoconfenvoy.v1;
+
+option go_package = "github.com/protoconf/protoconf-envoy/src/protoconfxds/v1;protoconfxds";
+
+import "envoy/config/endpoint/v3/endpoint.proto";
+import "envoy/config/cluster/v3/cluster.proto";
+import "envoy/config/route/v3/route.proto";
+import "envoy/config/route/v3/route_components.proto";
+import "envoy/config/listener/v3/listener.proto";
+import "envoy/config/route/v3/scoped_route.proto";
+import "envoy/extensions/transport_sockets/tls/v3/secret.proto";
+import "envoy/config/core/v3/extension.proto";
+import "envoy/service/runtime/v3/rtds.proto";
+import "envoy/extensions/filters/network/thrift_proxy/v3/route.proto";
+
+message ProtoconfEnvoyConfig {
+    string protoconf_agent_addr = 1;
+    string prefix = 2;
+    repeated string node_id = 3;
+    uint32 port = 4;
+    bool debug = 5;
+}
+
+message XDSSnapshot {
+    repeated envoy.config.endpoint.v3.ClusterLoadAssignment endpoints = 1;
+    repeated envoy.config.cluster.v3.Cluster clusters = 2;
+    repeated envoy.config.route.v3.RouteConfiguration routes = 3;
+    repeated envoy.config.route.v3.ScopedRouteConfiguration scoped_types = 4;
+    repeated envoy.config.route.v3.VirtualHost virtual_hosts = 5;
+    repeated envoy.config.listener.v3.Listener listeners = 6;
+    repeated envoy.extensions.transport_sockets.tls.v3.Secret secrets = 7;
+    repeated envoy.config.core.v3.TypedExtensionConfig extention_configs = 8;
+    repeated envoy.service.runtime.v3.Runtime runtimes = 9;
+    repeated envoy.extensions.filters.network.thrift_proxy.v3.RouteConfiguration thrift_routes = 10;
+
+}

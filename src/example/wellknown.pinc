@@ -1,0 +1,124 @@
+APITypePrefix = "type.googleapis.com/"
+wellknown = struct(
+    # Buffer HTTP filter
+    Buffer="envoy.filters.http.buffer",
+    # CORS HTTP filter
+    CORS="envoy.filters.http.cors",
+    # Dynamo HTTP filter
+    Dynamo="envoy.filters.http.dynamo",
+    # Fault HTTP filter
+    Fault="envoy.filters.http.fault",
+    # GRPCHTTP1Bridge HTTP filter
+    GRPCHTTP1Bridge="envoy.filters.http.grpc_http1_bridge",
+    # GRPCJSONTranscoder HTTP filter
+    GRPCJSONTranscoder="envoy.filters.http.grpc_json_transcoder",
+    # GRPCWeb HTTP filter
+    GRPCWeb="envoy.filters.http.grpc_web",
+    # Gzip HTTP filter
+    Gzip="envoy.filters.http.gzip",
+    # IPTagging HTTP filter
+    IPTagging="envoy.filters.http.ip_tagging",
+    # HTTPRateLimit filter
+    HTTPRateLimit="envoy.filters.http.ratelimit",
+    # Router HTTP filter
+    Router="envoy.filters.http.router",
+    # Health checking HTTP filter
+    HealthCheck="envoy.filters.http.health_check",
+    # Lua HTTP filter
+    Lua="envoy.filters.http.lua",
+    # Squash HTTP filter
+    Squash="envoy.filters.http.squash",
+    # HTTPExternalAuthorization HTTP filter
+    HTTPExternalAuthorization="envoy.filters.http.ext_authz",
+    # HTTPRoleBasedAccessControl HTTP filter
+    HTTPRoleBasedAccessControl="envoy.filters.http.rbac",
+    # HTTPGRPCStats HTTP filter
+    HTTPGRPCStats="envoy.filters.http.grpc_stats",
+    # HTTP WASM filter
+    HTTPWasm="envoy.extensions.filters.http.wasm.v3.Wasm",
+    ##HTTP filter names
+    # ClientSSLAuth network filter
+    ClientSSLAuth="envoy.filters.network.client_ssl_auth",
+    # Echo network filter
+    Echo="envoy.filters.network.echo",
+    # HTTPConnectionManager network filter
+    HTTPConnectionManager="envoy.filters.network.http_connection_manager",
+    # TCPProxy network filter
+    TCPProxy="envoy.filters.network.tcp_proxy",
+    # RateLimit network filter
+    RateLimit="envoy.filters.network.ratelimit",
+    # MongoProxy network filter
+    MongoProxy="envoy.filters.network.mongo_proxy",
+    # ThriftProxy network filter
+    ThriftProxy="envoy.filters.network.thrift_proxy",
+    # RedisProxy network filter
+    RedisProxy="envoy.filters.network.redis_proxy",
+    # MySQLProxy network filter
+    MySQLProxy="envoy.filters.network.mysql_proxy",
+    # ExternalAuthorization network filter
+    ExternalAuthorization="envoy.filters.network.ext_authz",
+    # RoleBasedAccessControl network filter
+    RoleBasedAccessControl="envoy.filters.network.rbac",
+    ## Network filter names
+    # OriginalDestination listener filter
+    OriginalDestination="envoy.filters.listener.original_dst",
+    # ProxyProtocol listener filter
+    ProxyProtocol="envoy.filters.listener.proxy_protocol",
+    # TlsInspector listener filter
+    TlsInspector="envoy.filters.listener.tls_inspector",
+    # TLSInspector listener filter
+    TLSInspector="envoy.filters.listener.tls_inspector",
+    # HttpInspector listener filter
+    HttpInspector="envoy.filters.listener.http_inspector",
+    # HTTPInspector listener filter
+    HTTPInspector="envoy.filters.listener.http_inspector",
+    # OriginalSource listener filter
+    OriginalSource="envoy.filters.listener.original_src",
+    ##Listener filter names
+    # Lightstep tracer name
+    Lightstep="envoy.tracers.lightstep",
+    # Zipkin tracer name
+    Zipkin="envoy.tracers.zipkin",
+    # DynamicOT tracer name
+    DynamicOT="envoy.tracers.dynamic_ot",
+    # Datadog tracer name
+    Datadog="envoy.tracers.datadog",
+    ## Tracing provider names
+    # Statsd sink
+    Statsd="envoy.stat_sinks.statsd",
+    # DogStatsD compatible stastsd sink
+    DogStatsd="envoy.stat_sinks.dog_statsd",
+    # MetricsService sink
+    MetricsService="envoy.stat_sinks.metrics_service",
+    ## Stats sink names
+    # FileAccessLog sink name
+    FileAccessLog="envoy.access_loggers.file",
+    # HTTPGRPCAccessLog sink for the HTTP gRPC access log service
+    HTTPGRPCAccessLog="envoy.access_loggers.http_grpc",
+    ##Access log sink names
+    # TransportSocket Alts
+    TransportSocketAlts="envoy.transport_sockets.alts",
+    # TransportSocket Tap
+    TransportSocketTap="envoy.transport_sockets.tap",
+    # TransportSocket RawBuffer
+    TransportSocketRawBuffer="envoy.transport_sockets.raw_buffer",
+    # TransportSocket Tls
+    TransportSocketTls="envoy.transport_sockets.tls",
+    # TransportSocketTLS labels the "envoy.transport_sockets.tls" filter.
+    TransportSocketTLS="envoy.transport_sockets.tls",
+    # TransportSocket Quic
+    TransportSocketQuic="envoy.transport_sockets.quic",
+    EndpointType=APITypePrefix + "envoy.config.endpoint.v3.ClusterLoadAssignment",
+    ClusterType=APITypePrefix + "envoy.config.cluster.v3.Cluster",
+    RouteType=APITypePrefix + "envoy.config.route.v3.RouteConfiguration",
+    ScopedRouteType=APITypePrefix + "envoy.config.route.v3.ScopedRouteConfiguration",
+    VirtualHostType=APITypePrefix + "envoy.config.route.v3.VirtualHost",
+    ListenerType=APITypePrefix + "envoy.config.listener.v3.Listener",
+    SecretType=APITypePrefix + "envoy.extensions.transport_sockets.tls.v3.Secret",
+    ExtensionConfigType=APITypePrefix + "envoy.config.core.v3.TypedExtensionConfig",
+    RuntimeType=APITypePrefix + "envoy.service.runtime.v3.Runtime",
+    ThriftRouteType=APITypePrefix
+    + "envoy.extensions.filters.network.thrift_proxy.v3.RouteConfiguration",
+    # Rate Limit service
+    RateLimitConfigType=APITypePrefix + "ratelimit.config.ratelimit.v3.RateLimitConfig",
+)

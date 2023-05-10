@@ -1,0 +1,107 @@
+{
+  "protoFile": "protoconfxds/v1/protoconfxds.proto",
+  "value": {
+    "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
+    "clusters": [
+      {
+        "name": "remote_cluster0",
+        "type": "LOGICAL_DNS",
+        "connectTimeout": "5s",
+        "loadAssignment": {
+          "clusterName": "remote_cluster0",
+          "endpoints": [
+            {
+              "lbEndpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socketAddress": {
+                        "address": "docs.protoconf.sh",
+                        "portValue": 443
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dnsLookupFamily": "V4_ONLY"
+      }
+    ],
+    "routes": [
+      {
+        "name": "local_route",
+        "virtualHosts": [
+          {
+            "name": "local_service",
+            "domains": [
+              "*"
+            ],
+            "routes": [
+              {
+                "match": {
+                  "prefix": "/"
+                },
+                "route": {
+                  "cluster": "remote_cluster0",
+                  "hostRewriteLiteral": "docs.protoconf.sh"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "listeners": [
+      {
+        "name": "listener_0",
+        "address": {
+          "socketAddress": {
+            "address": "0.0.0.0",
+            "portValue": 10000
+          }
+        },
+        "filterChains": [
+          {
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "statPrefix": "http",
+                  "rds": {
+                    "configSource": {
+                      "apiConfigSource": {
+                        "apiType": "GRPC",
+                        "transportApiVersion": "V3",
+                        "grpcServices": [
+                          {
+                            "envoyGrpc": {
+                              "clusterName": "xds_cluster"
+                            }
+                          }
+                        ],
+                        "setNodeOnFirstMessageOnly": true
+                      },
+                      "resourceApiVersion": "V3"
+                    },
+                    "routeConfigName": "local_route"
+                  },
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.router",
+                      "typedConfig": {
+                        "@type": "type.googleapis.com/envoy.extensions.filters.http.router.v3.Router"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

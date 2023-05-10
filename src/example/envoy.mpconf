@@ -1,0 +1,157 @@
+"""
+envoy helpers
+"""
+load(
+    "//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
+    "HttpConnectionManager",
+)
+load("//envoy/config/route/v3/route.proto", "RouteConfiguration")
+load("//envoy/config/listener/v3/listener.proto", "Listener")
+load("//envoy/config/cluster/v3/cluster.proto", "Cluster")
+load("//envoy/config/core/v3/config_source.proto", "ConfigSource", "ApiConfigSource")
+load("//envoy/config/core/v3/grpc_service.proto", "GrpcService")
+load("//envoy/config/listener/v3/listener_components.proto", "FilterChain", "Filter")
+load(
+    "//envoy/config/route/v3/route_components.proto",
+    "VirtualHost",
+    "Route",
+    "RouteMatch",
+    "RouteAction",
+)
+load("//envoy/config/core/v3/address.proto", "Address", "SocketAddress")
+load("/google/protobuf/duration.proto", "Duration")
+load("any.star", "any")
+load("//envoy/extensions/filters/http/router/v3/router.proto", "Router")
+load(
+    "//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
+    "Rds",
+    "HttpFilter",
+)
+load("//envoy/config/core/v3/config_source.proto", "ApiVersion")
+load(
+    "//envoy/config/endpoint/v3/endpoint_components.proto",
+    "LocalityLbEndpoints",
+    "LbEndpoint",
+    "Endpoint",
+)
+load("//envoy/config/endpoint/v3/endpoint.proto", "ClusterLoadAssignment")
+load("//protoconfxds/v1/protoconfxds.proto", "XDSSnapshot")
+load("wellknown.pinc", "wellknown")
+
+ClusterName = "remote_cluster0"
+RouteName = "local_route"
+ListenerName = "listener_0"
+ListenerPort = 10000
+UpstreamHost = "docs.protoconf.sh"
+UpstreamPort = 443
+
+
+def makeCluster(clusterName):
+    return Cluster(
+        name=clusterName,
+        connect_timeout=Duration(seconds=5),
+        type=Cluster.DiscoveryType.LOGICAL_DNS,
+        lb_policy=Cluster.LbPolicy.ROUND_ROBIN,
+        load_assignment=makeEndpoint(clusterName),
+        dns_lookup_family=Cluster.DnsLookupFamily.V4_ONLY,
+    )
+
+
+def makeEndpoint(clusterName):
+    return ClusterLoadAssignment(
+        cluster_name=clusterName,
+        endpoints=[
+            LocalityLbEndpoints(
+                lb_endpoints=[
+                    LbEndpoint(
+                        endpoint=Endpoint(
+                            address=Address(
+                                socket_address=SocketAddress(
+                                    protocol=SocketAddress.Protocol.TCP,
+                                    address=UpstreamHost,
+                                    port_value=UpstreamPort,
+                                ),
+                            ),
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+
+def makeRoute(routeName, clusterName):
+    return RouteConfiguration(
+        name=routeName,
+        virtual_hosts=[
+            VirtualHost(
+                name="local_service",
+                domains=["*"],
+                routes=[
+                    Route(
+                        match=RouteMatch(prefix="/",),
+                        route=RouteAction(
+                            cluster=clusterName, host_rewrite_literal=UpstreamHost,
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+
+def makeHTTPListener(listenerName, route):
+    routerConfig = any.new(Router())
+    # HTTP filter configuration
+    manager = HttpConnectionManager(
+        codec_type=HttpConnectionManager.CodecType.AUTO,
+        stat_prefix="http",
+        rds=Rds(config_source=makeConfigSource(), route_config_name=route,),
+        http_filters=[HttpFilter(name=wellknown.Router, typed_config=routerConfig,)],
+    )
+    pbst = any.new(manager)
+
+    return Listener(
+        name=listenerName,
+        address=Address(
+            socket_address=SocketAddress(
+                protocol=SocketAddress.Protocol.TCP,
+                address="0.0.0.0",
+                port_value=ListenerPort,
+            ),
+        ),
+        filter_chains=[
+            FilterChain(
+                filters=[
+                    Filter(name=wellknown.HTTPConnectionManager, typed_config=pbst,)
+                ],
+            )
+        ],
+    )
+
+
+def makeConfigSource():
+    source = ConfigSource(
+        resource_api_version=ApiVersion.V3,
+        api_config_source=ApiConfigSource(
+            transport_api_version=ApiVersion.V3,
+            api_type=ApiConfigSource.ApiType.GRPC,
+            set_node_on_first_message_only=True,
+            grpc_services=[
+                GrpcService(
+                    envoy_grpc=GrpcService.EnvoyGrpc(cluster_name="xds_cluster")
+                )
+            ],
+        ),
+    )
+    return source
+
+
+def main():
+    return {
+        "test-id": XDSSnapshot(
+            clusters=[makeCluster(ClusterName)],
+            routes=[makeRoute(RouteName, ClusterName)],
+            listeners=[makeHTTPListener(ListenerName, RouteName)],
+        )
+    }

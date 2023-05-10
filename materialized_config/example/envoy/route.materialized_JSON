@@ -1,0 +1,26 @@
+{
+  "protoFile": "envoy/config/route/v3/route.proto",
+  "value": {
+    "@type": "type.googleapis.com/envoy.config.route.v3.RouteConfiguration",
+    "name": "local_route",
+    "virtualHosts": [
+      {
+        "name": "local_service",
+        "domains": [
+          "*"
+        ],
+        "routes": [
+          {
+            "match": {
+              "prefix": "/"
+            },
+            "route": {
+              "cluster": "example_proxy_cluster",
+              "hostRewriteLiteral": "www.envoyproxy.io"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
