@@ -28,7 +28,6 @@ import (
 	endpointv3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 	listenerv3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	routev3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
-	thrift_proxyv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/thrift_proxy/v3"
 	tlsv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	runtimev3 "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
 
@@ -38,8 +37,8 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/test/v3"
 	"github.com/protoconf/libprotoconf"
-	"github.com/protoconf/protoconf-envoy/src/protoconfxds/v1"
-	"github.com/protoconf/protoconf-envoy/xds"
+	"github.com/protoconf/protoconf-xds/src/protoconfxds/v1"
+	"github.com/protoconf/protoconf-xds/xds"
 	protoconf_agent "github.com/protoconf/protoconf/agent/api/proto/v1"
 	"github.com/smintz/keygroup"
 	"google.golang.org/grpc"
@@ -200,12 +199,6 @@ func makeExtensionConfigs(input []*corev3.TypedExtensionConfig) (ret []types.Res
 	return ret
 }
 func makeRuntimes(input []*runtimev3.Runtime) (ret []types.Resource) {
-	for _, item := range input {
-		ret = append(ret, item)
-	}
-	return ret
-}
-func makeThriftRoutes(input []*thrift_proxyv3.RouteConfiguration) (ret []types.Resource) {
 	for _, item := range input {
 		ret = append(ret, item)
 	}
