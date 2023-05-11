@@ -32,3 +32,5 @@ build:
     - src/envoy
     - src/udpa
     - src/google
+    - src/opentelemetry
+    - src/opencensus

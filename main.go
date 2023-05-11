@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/avast/retry-go"
 	clusterv3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	corev3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	endpointv3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
@@ -89,50 +90,56 @@ func main() {
 	defer conn.Close()
 	stub := protoconf_agent.NewProtoconfServiceClient(conn)
 	watcher := func(ctx context.Context, key string) {
-		stream, err := stub.SubscribeForConfig(ctx, &protoconf_agent.ConfigSubscriptionRequest{
-			Path: filepath.Join(config.Prefix, key),
-		})
-		if err != nil {
-			l.Errorf("error getting stream %v", err)
-		}
-		xdsRecord := &protoconfxds.XDSSnapshot{}
-		for {
-			update, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if status.Code(err) == codes.Canceled {
-				l.Infof("stopping %s", key)
-				break
-			}
-			if err != nil {
-				l.Errorf("%v", err)
-				break
-			}
-			err = update.Value.UnmarshalTo(xdsRecord)
-			if err != nil {
-				l.Errorf("%v", err)
-				break
-			}
-			version := fmt.Sprintf("%x", md5.Sum([]byte(update.String())))
-			l.Debugf("%v", xdsRecord)
-			snapshot, _ := cache.NewSnapshot(version, map[resource.Type][]types.Resource{
-				resource.ClusterType:         makeClusters(xdsRecord.Clusters),
-				resource.RouteType:           makeRoutes(xdsRecord.Routes),
-				resource.ListenerType:        makeListeners(xdsRecord.Listeners),
-				resource.EndpointType:        makeEndpoints(xdsRecord.Endpoints),
-				resource.ScopedRouteType:     makeScopedRoutes(xdsRecord.ScopedTypes),
-				resource.VirtualHostType:     makeVirtualHosts(xdsRecord.VirtualHosts),
-				resource.SecretType:          makeSecrets(xdsRecord.Secrets),
-				resource.ExtensionConfigType: makeExtensionConfigs(xdsRecord.ExtentionConfigs),
-				resource.RuntimeType:         makeRuntimes(xdsRecord.Runtimes),
-				resource.ThriftRouteType:     makeThriftRoutes(xdsRecord.ThriftRoutes),
+		retry.Do(func() error {
+			stream, err := stub.SubscribeForConfig(ctx, &protoconf_agent.ConfigSubscriptionRequest{
+				Path: filepath.Join(config.Prefix, key),
 			})
-			err = xdsCache.SetSnapshot(ctx, key, snapshot)
 			if err != nil {
-				l.Errorf("%v", err)
+				l.Errorf("error getting stream %v", err)
 			}
-		}
+			xdsRecord := &protoconfxds.XDSSnapshot{}
+			for {
+				update, err := stream.Recv()
+				if err == io.EOF {
+					break
+				}
+				if status.Code(err) == codes.Canceled {
+					l.Infof("stopping %s", key)
+					break
+				}
+				if err != nil {
+					l.Errorf("%v", err)
+					return err
+				}
+				err = update.Value.UnmarshalTo(xdsRecord)
+				if err != nil {
+					l.Errorf("%v", err)
+					return err
+				}
+				version := fmt.Sprintf("%x", md5.Sum([]byte(update.String())))
+				l.Debugf("version: %s : %v", version, xdsRecord)
+				snapshot, err := cache.NewSnapshot(version, map[resource.Type][]types.Resource{
+					resource.ClusterType:         makeClusters(xdsRecord.Clusters),
+					resource.RouteType:           makeRoutes(xdsRecord.Routes),
+					resource.ListenerType:        makeListeners(xdsRecord.Listeners),
+					resource.EndpointType:        makeEndpoints(xdsRecord.Endpoints),
+					resource.ScopedRouteType:     makeScopedRoutes(xdsRecord.ScopedTypes),
+					resource.VirtualHostType:     makeVirtualHosts(xdsRecord.VirtualHosts),
+					resource.SecretType:          makeSecrets(xdsRecord.Secrets),
+					resource.ExtensionConfigType: makeExtensionConfigs(xdsRecord.ExtentionConfigs),
+					resource.RuntimeType:         makeRuntimes(xdsRecord.Runtimes),
+				})
+				if err != nil {
+					l.Errorf("%v", err)
+					return err
+				}
+				err = xdsCache.SetSnapshot(ctx, key, snapshot)
+				if err != nil {
+					l.Errorf("%v", err)
+				}
+			}
+			return nil
+		})
 	}
 	kg := keygroup.NewKeyGroup(watcher)
 	kg.Update(config.NodeId)

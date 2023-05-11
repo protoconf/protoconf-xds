@@ -38,7 +38,7 @@ load("//envoy/config/endpoint/v3/endpoint.proto", "ClusterLoadAssignment")
 load("//protoconfxds/v1/protoconfxds.proto", "XDSSnapshot")
 load("wellknown.pinc", "wellknown")
 
-ClusterName = "remote_cluster0"
+ClusterName = "remote_cluster"
 RouteName = "local_route"
 ListenerName = "listener_0"
 ListenerPort = 10000
@@ -153,5 +153,5 @@ def main():
             clusters=[makeCluster(ClusterName)],
             routes=[makeRoute(RouteName, ClusterName)],
             listeners=[makeHTTPListener(ListenerName, RouteName)],
-        )
+        ),
     }

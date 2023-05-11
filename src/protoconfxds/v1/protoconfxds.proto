@@ -33,6 +33,4 @@ message XDSSnapshot {
     repeated envoy.extensions.transport_sockets.tls.v3.Secret secrets = 7;
     repeated envoy.config.core.v3.TypedExtensionConfig extention_configs = 8;
     repeated envoy.service.runtime.v3.Runtime runtimes = 9;
-    repeated envoy.extensions.filters.network.thrift_proxy.v3.RouteConfiguration thrift_routes = 10;
-
 }

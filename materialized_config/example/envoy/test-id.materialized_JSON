@@ -4,11 +4,11 @@
     "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
     "clusters": [
       {
-        "name": "remote_cluster0",
+        "name": "remote_cluster",
         "type": "LOGICAL_DNS",
         "connectTimeout": "5s",
         "loadAssignment": {
-          "clusterName": "remote_cluster0",
+          "clusterName": "remote_cluster",
           "endpoints": [
             {
               "lbEndpoints": [
@@ -44,7 +44,7 @@
                   "prefix": "/"
                 },
                 "route": {
-                  "cluster": "remote_cluster0",
+                  "cluster": "remote_cluster",
                   "hostRewriteLiteral": "docs.protoconf.sh"
                 }
               }
