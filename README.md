@@ -72,4 +72,4 @@ Please make sure to update tests as appropriate.
 
 ### Acknowledgments
 
-This project was inspired by the [Envoy xDS server example](https://github.com/envoyproxy/go-control-plane/tree/main/examples) and uses [Protoconf gRPC Client](https://pkg.go.dev/github.com/protoconf/protoconf@v0.1.6/agent/api/proto/v1) to communicate with the Protoconf API server.
+This project was inspired by the [Envoy xDS server example](https://github.com/envoyproxy/go-control-plane/tree/main/internal/example) and uses [Protoconf gRPC Client](https://pkg.go.dev/github.com/protoconf/protoconf@v0.1.6/agent/api/proto/v1) to communicate with the Protoconf API server.
