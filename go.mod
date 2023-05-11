@@ -1,4 +1,4 @@
-module github.com/protoconf/protoconf-envoy
+module github.com/protoconf/protoconf-xds
 
 go 1.20
 
