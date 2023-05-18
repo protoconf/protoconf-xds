@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/envoyproxy/go-control-plane v0.11.0
-	github.com/mitchellh/cli v1.1.2
+	github.com/mitchellh/cli v1.1.5
 	github.com/protoconf/libprotoconf v0.0.0-20211017074511-4cffcc3620de
 	github.com/protoconf/protoconf v0.1.6
 	github.com/smintz/keygroup v0.1.0
@@ -17,7 +17,9 @@ require (
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
@@ -40,6 +42,8 @@ require (
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/scylladb/go-set v1.0.2 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
+	github.com/spf13/cast v1.3.1 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
