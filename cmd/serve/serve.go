@@ -12,15 +12,16 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package main
+package serve
 
 import (
 	"context"
 	"crypto/md5"
+	"flag"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/avast/retry-go"
 	clusterv3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -30,6 +31,8 @@ import (
 	routev3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	tlsv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	runtimev3 "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
+	"github.com/mitchellh/cli"
+	"github.com/stephenafamo/orchestra"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
@@ -47,15 +50,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var (
-	l xds.Logger
-)
-
-func init() {
-	l = xds.Logger{}
+type Command struct {
+	logger  *xds.Logger
+	config  *protoconfxds.ProtoconfEnvoyConfig
+	flagset *flag.FlagSet
 }
 
-func main() {
+func (c *Command) Synopsis() string {
+	return "Run the protoconf-xds server"
+}
+
+func (c *Command) Help() string {
+	buf := &strings.Builder{}
+	c.flagset.SetOutput(buf)
+	c.flagset.Usage()
+	return fmt.Sprintf("%s\n\n%v", c.Synopsis(), buf.String())
+}
+
+func NewCommand() (cli.Command, error) {
 	config := &protoconfxds.ProtoconfEnvoyConfig{
 		ProtoconfAgentAddr: "localhost:4300",
 		Prefix:             "example",
@@ -65,36 +77,45 @@ func main() {
 	lpc.SetEnvKeyPrefix("PROTOCONF_XDS")
 	err := lpc.Environment()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	fs := lpc.DefaultFlagSet()
-	err = fs.Parse(os.Args[1:])
+	command := &Command{
+		logger:  &xds.Logger{},
+		flagset: lpc.DefaultFlagSet(),
+		config:  config,
+	}
+	return command, nil
+
+}
+
+func (c *Command) Run(args []string) int {
+	err := c.flagset.Parse(args)
 	if err != nil {
-		fs.Usage()
-		return
+		c.flagset.Usage()
+		return 1
 	}
-	l.Debug = config.Debug
+	c.logger.Debug = c.config.Debug
 
 	// Create a cache
-	xdsCache := cache.NewSnapshotCache(false, cache.IDHash{}, l)
+	xdsCache := cache.NewSnapshotCache(false, cache.IDHash{}, c.logger)
 
 	conn, err := grpc.Dial(
 		"localhost:4300",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		l.Errorf("failed to connect to agent", "error", err)
-		return
+		c.logger.Errorf("failed to connect to agent", "error", err)
+		return 1
 	}
 	defer conn.Close()
 	stub := protoconf_agent.NewProtoconfServiceClient(conn)
 	watcher := func(ctx context.Context, key string) {
 		retry.Do(func() error {
 			stream, err := stub.SubscribeForConfig(ctx, &protoconf_agent.ConfigSubscriptionRequest{
-				Path: filepath.Join(config.Prefix, key),
+				Path: filepath.Join(c.config.Prefix, key),
 			})
 			if err != nil {
-				l.Errorf("error getting stream %v", err)
+				c.logger.Errorf("error getting stream %v", err)
 			}
 			xdsRecord := &protoconfxds.XDSSnapshot{}
 			for {
@@ -103,20 +124,20 @@ func main() {
 					break
 				}
 				if status.Code(err) == codes.Canceled {
-					l.Infof("stopping %s", key)
+					c.logger.Infof("stopping %s", key)
 					break
 				}
 				if err != nil {
-					l.Errorf("%v", err)
+					c.logger.Errorf("%v", err)
 					return err
 				}
 				err = update.Value.UnmarshalTo(xdsRecord)
 				if err != nil {
-					l.Errorf("%v", err)
+					c.logger.Errorf("%v", err)
 					return err
 				}
 				version := fmt.Sprintf("%x", md5.Sum([]byte(update.String())))
-				l.Debugf("version: %s : %v", version, xdsRecord)
+				c.logger.Debugf("version: %s : %v", version, xdsRecord)
 				snapshot, err := cache.NewSnapshot(version, map[resource.Type][]types.Resource{
 					resource.ClusterType:         makeClusters(xdsRecord.Clusters),
 					resource.RouteType:           makeRoutes(xdsRecord.Routes),
@@ -129,25 +150,30 @@ func main() {
 					resource.RuntimeType:         makeRuntimes(xdsRecord.Runtimes),
 				})
 				if err != nil {
-					l.Errorf("%v", err)
+					c.logger.Errorf("%v", err)
 					return err
 				}
 				err = xdsCache.SetSnapshot(ctx, key, snapshot)
 				if err != nil {
-					l.Errorf("%v", err)
+					c.logger.Errorf("%v", err)
 				}
 			}
 			return nil
 		})
 	}
 	kg := keygroup.NewKeyGroup(watcher)
-	kg.Update(config.NodeId)
+	kg.Update(c.config.NodeId)
 
 	// Run the xDS server
 	ctx := context.Background()
-	cb := &test.Callbacks{Debug: l.Debug}
+	cb := &test.Callbacks{Debug: c.logger.Debug}
 	srv := server.NewServer(ctx, xdsCache, cb)
-	xds.RunServer(srv, uint(config.Port))
+	err = orchestra.PlayUntilSignal(orchestra.PlayerFunc(xds.GeneratePlayer(srv, uint(c.config.Port))))
+	if err != nil {
+		c.logger.Errorf("grpc server return error: %v", err)
+		return 1
+	}
+	return 0
 }
 
 func makeClusters(input []*clusterv3.Cluster) (ret []types.Resource) {
