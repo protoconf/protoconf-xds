@@ -9,6 +9,7 @@ require (
 	github.com/protoconf/libprotoconf v0.0.0-20211017074511-4cffcc3620de
 	github.com/protoconf/protoconf v0.1.6
 	github.com/smintz/keygroup v0.1.0
+	github.com/stephenafamo/orchestra v0.0.0-20221122233638-c6ea527f65e7
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 )
@@ -39,7 +40,6 @@ require (
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/scylladb/go-set v1.0.2 // indirect
-	github.com/stephenafamo/orchestra v0.0.0-20221122233638-c6ea527f65e7 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect

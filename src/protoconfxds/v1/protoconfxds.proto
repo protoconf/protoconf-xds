@@ -23,6 +23,10 @@ message ProtoconfEnvoyConfig {
     bool debug = 5;
 }
 
+message ProtoconfInitConfig {
+    string output_path = 1;
+}
+
 message XDSSnapshot {
     repeated envoy.config.endpoint.v3.ClusterLoadAssignment endpoints = 1;
     repeated envoy.config.cluster.v3.Cluster clusters = 2;

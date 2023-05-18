@@ -9,6 +9,8 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/protoconf/protoconf-xds/pkg/build.Version={{.Version}}
     goos:
       - linux
       - windows
@@ -17,6 +19,7 @@ builds:
       - goarch: 386
       - goos: windows
         goarch: arm64
+    main: ./cmd/protoconf-xds
 archives:
   - replacements:
       386: i386
@@ -65,3 +68,23 @@ brews:
     # SPDX identifier of your app's license.
     # Default is empty.
     license: "MIT"
+dockers:
+  - id: protoconf-docker
+    image_templates:
+      - "protoconf/protoconf-xds:latest"
+      - "protoconf/protoconf-xds:{{ .Tag }}"
+      - "protoconf/protoconf-xds:v{{ .Major }}"
+      - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/protoconf/protoconf-xds:latest"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
+    dockerfile: build/Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/protoconf/protoconf-xds"
+      - "--platform=linux/amd64"

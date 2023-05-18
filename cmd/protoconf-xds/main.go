@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
+	initcmd "github.com/protoconf/protoconf-xds/cmd/init"
 	"github.com/protoconf/protoconf-xds/cmd/serve"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	cmd.Args = os.Args[1:]
 	cmd.Commands = map[string]cli.CommandFactory{
 		"serve": serve.NewCommand,
+		"init":  initcmd.NewCommand,
 	}
 
 	code, err := cmd.Run()
