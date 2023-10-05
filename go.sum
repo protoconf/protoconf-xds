@@ -492,6 +492,8 @@ github.com/prometheus/procfs v0.6.0/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1
 github.com/prometheus/procfs v0.7.3/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1xBZuNvfVA=
 github.com/protoconf/libprotoconf v0.0.0-20211017074511-4cffcc3620de h1:lfWOezApDeynrIY38AouCegSmku27LTyMSntRU8kmt0=
 github.com/protoconf/libprotoconf v0.0.0-20211017074511-4cffcc3620de/go.mod h1:17+zlBLHB+LpAxBqspUHK2MLmpBbHq4A6wkZ7iagW1E=
+github.com/protoconf/libprotoconf v0.1.0 h1:Bb8GV6CU3DTPlpf2AuP34JRk9B6C+KNkT9CQ8IorTgE=
+github.com/protoconf/libprotoconf v0.1.0/go.mod h1:17+zlBLHB+LpAxBqspUHK2MLmpBbHq4A6wkZ7iagW1E=
 github.com/protoconf/protoconf v0.1.6 h1:DbCQRoMJjH195O/y7eE1ukKS2vmVon8DEmPHy9noAeg=
 github.com/protoconf/protoconf v0.1.6/go.mod h1:0X/QuuM6cUUZiNnELlkcvUwCrvAyv1lTj3ORmzJq5NE=
 github.com/protoconf/protoconf v0.1.7 h1:qa2tM5ltSonYEQFdJNClB4TH5PB1jnCqp2/GLD4RDRE=

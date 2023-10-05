@@ -6,7 +6,7 @@ require (
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/envoyproxy/go-control-plane v0.11.1
 	github.com/mitchellh/cli v1.1.5
-	github.com/protoconf/libprotoconf v0.0.0-20211017074511-4cffcc3620de
+	github.com/protoconf/libprotoconf v0.1.0
 	github.com/protoconf/protoconf v0.1.7
 	github.com/smintz/keygroup v0.1.0
 	github.com/stephenafamo/orchestra v0.0.0-20221122233638-c6ea527f65e7
