@@ -1,48 +1,65 @@
 """
 envoy helpers
 """
+load("//protoconfxds/v1/protoconfxds.proto", "XDSSnapshot")
 load(
-    "//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
+    "@envoy//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
     "HttpConnectionManager",
 )
-load("//envoy/config/route/v3/route.proto", "RouteConfiguration")
-load("//envoy/config/listener/v3/listener.proto", "Listener")
-load("//envoy/config/cluster/v3/cluster.proto", "Cluster")
-load("//envoy/config/core/v3/config_source.proto", "ConfigSource", "ApiConfigSource")
-load("//envoy/config/core/v3/grpc_service.proto", "GrpcService")
-load("//envoy/config/listener/v3/listener_components.proto", "FilterChain", "Filter")
+load("@envoy//envoy/config/route/v3/route.proto", "RouteConfiguration")
+load("@envoy//envoy/config/listener/v3/listener.proto", "Listener")
+load("@envoy//envoy/config/cluster/v3/cluster.proto", "Cluster")
+load("@envoy//envoy/extensions/transport_sockets/tls/v3/tls.proto", "UpstreamTlsContext")
 load(
-    "//envoy/config/route/v3/route_components.proto",
+    "@envoy//envoy/config/core/v3/config_source.proto",
+    "ConfigSource",
+    "ApiConfigSource",
+)
+load("@envoy//envoy/config/core/v3/grpc_service.proto", "GrpcService")
+load(
+    "@envoy//envoy/config/listener/v3/listener_components.proto",
+    "FilterChain",
+    "Filter",
+)
+load(
+    "@envoy//envoy/config/route/v3/route_components.proto",
     "VirtualHost",
     "Route",
     "RouteMatch",
     "RouteAction",
 )
-load("//envoy/config/core/v3/address.proto", "Address", "SocketAddress")
+load("@envoy//envoy/config/core/v3/address.proto", "Address", "SocketAddress")
 load("/google/protobuf/duration.proto", "Duration")
 load("any.star", "any")
-load("//envoy/extensions/filters/http/router/v3/router.proto", "Router")
+load("@envoy//envoy/extensions/filters/http/router/v3/router.proto", "Router")
 load(
-    "//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
+    "@envoy//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
     "Rds",
     "HttpFilter",
 )
-load("//envoy/config/core/v3/config_source.proto", "ApiVersion")
+load("@envoy//envoy/config/core/v3/config_source.proto", "ApiVersion")
 load(
-    "//envoy/config/endpoint/v3/endpoint_components.proto",
+    "@envoy//envoy/config/endpoint/v3/endpoint_components.proto",
     "LocalityLbEndpoints",
     "LbEndpoint",
     "Endpoint",
 )
-load("//envoy/config/endpoint/v3/endpoint.proto", "ClusterLoadAssignment")
-load("//protoconfxds/v1/protoconfxds.proto", "XDSSnapshot")
-load("wellknown.pinc", "wellknown")
+load("@envoy//envoy/config/endpoint/v3/endpoint.proto", "ClusterLoadAssignment")
+load("@envoy//envoy/config/core/v3/base.proto", "TransportSocket")
+load(
+    "@ratelimit//ratelimit/config/ratelimit/v3/rls_conf.proto",
+    "RateLimitConfig",
+    "RateLimitDescriptor",
+    "RateLimitPolicy",
+    "RateLimitUnit",
+)
+load("//example/wellknown.pinc", "wellknown")
 
 ClusterName = "remote_cluster"
 RouteName = "local_route"
 ListenerName = "listener_0"
 ListenerPort = 10000
-UpstreamHost = "docs.protoconf.sh"
+UpstreamHost = "www.protoconf.dev"
 UpstreamPort = 443
 
 
@@ -53,6 +70,10 @@ def makeCluster(clusterName):
         type=Cluster.DiscoveryType.LOGICAL_DNS,
         lb_policy=Cluster.LbPolicy.ROUND_ROBIN,
         load_assignment=makeEndpoint(clusterName),
+        transport_socket=TransportSocket(
+            name="envoy.transport_sockets.tls",
+            typed_config=any.new(UpstreamTlsContext(sni=UpstreamHost,)),
+        ),
         dns_lookup_family=Cluster.DnsLookupFamily.V4_ONLY,
     )
 
@@ -86,7 +107,7 @@ def makeRoute(routeName, clusterName):
         virtual_hosts=[
             VirtualHost(
                 name="local_service",
-                domains=["*"],
+                domains=["*", "local_service"],
                 routes=[
                     Route(
                         match=RouteMatch(prefix="/",),
@@ -147,11 +168,34 @@ def makeConfigSource():
     return source
 
 
+def makeRateLimiters():
+    return [
+        RateLimitConfig(
+            domain="local_service",
+            descriptors=[
+                RateLimitDescriptor(
+                    key="remote_address",
+                    value="blah",
+                    rate_limit=RateLimitPolicy(
+                        name="local_service_limit",
+                        unit=RateLimitUnit.MINUTE,
+                        requests_per_unit=10000,
+                    ),
+                )
+            ],
+        )
+    ]
+
+
+print(makeRateLimiters())
+
+
 def main():
     return {
         "test-id": XDSSnapshot(
             clusters=[makeCluster(ClusterName)],
             routes=[makeRoute(RouteName, ClusterName)],
             listeners=[makeHTTPListener(ListenerName, RouteName)],
+            ratelimits=makeRateLimiters(),
         ),
     }

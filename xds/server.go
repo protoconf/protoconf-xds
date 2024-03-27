@@ -136,6 +136,7 @@ func GeneratePlayer(srv server.Server, port uint) func(context.Context) error {
 		log.Printf("management server listening on %d\n", port)
 		go grpcServer.Serve(lis)
 		<-ctx.Done()
+		log.Printf("management server stopped: %s\n", context.Cause(ctx))
 		grpcServer.GracefulStop()
 		return nil
 

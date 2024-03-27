@@ -1,0 +1,6 @@
+*.pconf linguist-language=Starlark
+*.mpconf linguist-language=Starlark
+*.pinc linguist-language=Starlark
+*.proto-validator linguist-language=Starlark
+*.materialized_JSON linguist-language=json
+# *.materialized_JSON linguist-generated  # uncomment this line if you wish to hide these changes during code reviews (not recommended)

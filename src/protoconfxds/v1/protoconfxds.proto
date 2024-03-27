@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protoconfenvoy.v1;
 
-option go_package = "github.com/protoconf/protoconf-envoy/src/protoconfxds/v1;protoconfxds";
+option go_package = "github.com/protoconf/protoconf-xds/src/protoconfxds/v1;protoconfxds";
 
 import "envoy/config/endpoint/v3/endpoint.proto";
 import "envoy/config/cluster/v3/cluster.proto";
@@ -13,7 +13,8 @@ import "envoy/config/route/v3/scoped_route.proto";
 import "envoy/extensions/transport_sockets/tls/v3/secret.proto";
 import "envoy/config/core/v3/extension.proto";
 import "envoy/service/runtime/v3/rtds.proto";
-import "envoy/extensions/filters/network/thrift_proxy/v3/route.proto";
+import "ratelimit/config/ratelimit/v3/rls_conf.proto";
+
 
 message ProtoconfEnvoyConfig {
     string protoconf_agent_addr = 1;
@@ -37,4 +38,5 @@ message XDSSnapshot {
     repeated envoy.extensions.transport_sockets.tls.v3.Secret secrets = 7;
     repeated envoy.config.core.v3.TypedExtensionConfig extention_configs = 8;
     repeated envoy.service.runtime.v3.Runtime runtimes = 9;
+    repeated ratelimit.config.ratelimit.v3.RateLimitConfig ratelimits = 10;
 }
