@@ -1,0 +1,53 @@
+envoy = remote_repo(
+    url="github.com/envoyproxy/data-plane-api",
+    commit="54a58fd",
+    # load protos from repo's root (default is to load from `/src`)
+    additional_proto_dirs=["."],
+    # patterns to exclude (mainly to avoid proto files duplications)
+    exclude_file_regexps=[
+        "^google/.*",
+        "^bazel/.*",
+    ],
+)
+ratelimit = remote_repo(
+    url="github.com/envoyproxy/ratelimit",
+    commit="19f2079",
+    additional_proto_dirs=["api"],
+    exclude_file_regexps=["^google/.*"],
+)
+
+xds = remote_repo(
+    url="github.com/cncf/xds",
+    commit="0335649",
+    additional_proto_dirs=["."],
+)
+
+GOOGLE_APIS_COMMIT = "cbe62016a4eb24e71186899b79b9a4736f858653"
+googleapis = remote_repo(
+    url="https://github.com/googleapis/googleapis/archive/{0}.zip//googleapis-{0}/".format(
+        GOOGLE_APIS_COMMIT
+    ),
+    # commit="cbe6201",
+    additional_proto_dirs=["."],
+    exclude_file_regexps=[
+        "^google/api/.*.proto",
+        "^google/rpc/.*.proto",
+        "^google/iam/.*.proto",
+        "^google/type/.*.proto",
+        "^google/storage/.*.proto",
+    ],
+)
+
+# xds = remote_repo(
+#     url="github.com/protoconf/protoconf-xds",
+#     branch="main",
+#     exclude_file_regexps=[
+#         "google/.*",
+#         "envoy/.*",
+#         "io/prometheus/.*",
+#         "opencensus/.*",
+#         "opentelemetry/.*",
+#         "udpa/.*",
+#         "validate/.*",
+#     ],
+# )

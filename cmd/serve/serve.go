@@ -22,6 +22,7 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/avast/retry-go"
 	clusterv3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
@@ -31,6 +32,7 @@ import (
 	routev3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	tlsv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	runtimev3 "github.com/envoyproxy/go-control-plane/envoy/service/runtime/v3"
+	ratelimitv3 "github.com/envoyproxy/go-control-plane/ratelimit/config/ratelimit/v3"
 	"github.com/mitchellh/cli"
 	"github.com/stephenafamo/orchestra"
 
@@ -148,6 +150,7 @@ func (c *Command) Run(args []string) int {
 					resource.SecretType:          makeSecrets(xdsRecord.Secrets),
 					resource.ExtensionConfigType: makeExtensionConfigs(xdsRecord.ExtentionConfigs),
 					resource.RuntimeType:         makeRuntimes(xdsRecord.Runtimes),
+					resource.RateLimitConfigType: makeRatelimits(xdsRecord.Ratelimits),
 				})
 				if err != nil {
 					c.logger.Errorf("%v", err)
@@ -168,7 +171,7 @@ func (c *Command) Run(args []string) int {
 	ctx := context.Background()
 	cb := &test.Callbacks{Debug: c.logger.Debug}
 	srv := server.NewServer(ctx, xdsCache, cb)
-	err = orchestra.PlayUntilSignal(orchestra.PlayerFunc(xds.GeneratePlayer(srv, uint(c.config.Port))))
+	err = orchestra.PlayUntilSignal(orchestra.PlayerFunc(xds.GeneratePlayer(srv, uint(c.config.Port))), syscall.SIGINT, syscall.SIGTERM)
 	if err != nil {
 		c.logger.Errorf("grpc server return error: %v", err)
 		return 1
@@ -225,6 +228,13 @@ func makeExtensionConfigs(input []*corev3.TypedExtensionConfig) (ret []types.Res
 	return ret
 }
 func makeRuntimes(input []*runtimev3.Runtime) (ret []types.Resource) {
+	for _, item := range input {
+		ret = append(ret, item)
+	}
+	return ret
+}
+
+func makeRatelimits(input []*ratelimitv3.RateLimitConfig) (ret []types.Resource) {
 	for _, item := range input {
 		ret = append(ret, item)
 	}

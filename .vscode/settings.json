@@ -1,0 +1,10 @@
+{
+  "protoc": { "options": ["-I", "src"] },
+  "files.associations": {
+    "*.pconf": "Starlark",
+    "*.mpconf": "Starlark",
+    "*.pinc": "Starlark",
+    "*.proto-validator": "Starlark",
+    "*.materialized_JSON": "json"
+  }
+}

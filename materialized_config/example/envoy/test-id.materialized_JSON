@@ -16,7 +16,7 @@
                   "endpoint": {
                     "address": {
                       "socketAddress": {
-                        "address": "docs.protoconf.sh",
+                        "address": "www.protoconf.dev",
                         "portValue": 443
                       }
                     }
@@ -26,7 +26,14 @@
             }
           ]
         },
-        "dnsLookupFamily": "V4_ONLY"
+        "dnsLookupFamily": "V4_ONLY",
+        "transportSocket": {
+          "name": "envoy.transport_sockets.tls",
+          "typedConfig": {
+            "@type": "type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext",
+            "sni": "www.protoconf.dev"
+          }
+        }
       }
     ],
     "routes": [
@@ -36,7 +43,8 @@
           {
             "name": "local_service",
             "domains": [
-              "*"
+              "*",
+              "local_service"
             ],
             "routes": [
               {
@@ -45,7 +53,7 @@
                 },
                 "route": {
                   "cluster": "remote_cluster",
-                  "hostRewriteLiteral": "docs.protoconf.sh"
+                  "hostRewriteLiteral": "www.protoconf.dev"
                 }
               }
             ]
@@ -99,6 +107,22 @@
                 }
               }
             ]
+          }
+        ]
+      }
+    ],
+    "ratelimits": [
+      {
+        "domain": "local_service",
+        "descriptors": [
+          {
+            "key": "remote_address",
+            "value": "blah",
+            "rateLimit": {
+              "unit": "MINUTE",
+              "requestsPerUnit": 10000,
+              "name": "local_service_limit"
+            }
           }
         ]
       }

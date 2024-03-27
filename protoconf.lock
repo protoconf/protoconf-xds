@@ -1,0 +1,59 @@
+deps: {
+  key: "envoy"
+  value: {
+    label: "com_github_envoyproxy_data_plane_api_54a58fd"
+    url: "github.com/envoyproxy/data-plane-api"
+    commit: "54a58fd"
+    source_path: "src"
+    additional_proto_dirs: "."
+    exclude_file_regexps: "^google/.*"
+    exclude_file_regexps: "^bazel/.*"
+    integrity: "h1:nDWR+nz8fagoFDPTaUtNKoXHUwal4LzmyxDxexPiVck="
+    getter_url: "git::https://github.com/envoyproxy/data-plane-api.git?depth=0&ref=54a58fd"
+    file_descriptor_set_sum: "08d4f364dc6d949c7a6cd2f3dff19f6cc6c39e595ee6cf5ec2a19c8a2240c464"
+  }
+}
+deps: {
+  key: "googleapis"
+  value: {
+    label: "com_github_googleapis_googleapis"
+    url: "https://github.com/googleapis/googleapis/archive/cbe62016a4eb24e71186899b79b9a4736f858653.zip//googleapis-cbe62016a4eb24e71186899b79b9a4736f858653/"
+    source_path: "src"
+    additional_proto_dirs: "."
+    exclude_file_regexps: "^google/api/.*.proto"
+    exclude_file_regexps: "^google/rpc/.*.proto"
+    exclude_file_regexps: "^google/iam/.*.proto"
+    exclude_file_regexps: "^google/type/.*.proto"
+    exclude_file_regexps: "^google/storage/.*.proto"
+    integrity: "h1:gtvd4RdGUNqdph2j50kFTZOuZLfLqaVFUIyMJYMTuBo="
+    getter_url: "https://github.com/googleapis/googleapis/archive/cbe62016a4eb24e71186899b79b9a4736f858653.zip//googleapis-cbe62016a4eb24e71186899b79b9a4736f858653/"
+    file_descriptor_set_sum: "6306e44662d143521df9cc8fc2d64d5bfc31486ac3bf866c5762a3c629be9258"
+  }
+}
+deps: {
+  key: "ratelimit"
+  value: {
+    label: "com_github_envoyproxy_ratelimit_19f2079"
+    url: "github.com/envoyproxy/ratelimit"
+    commit: "19f2079"
+    source_path: "src"
+    additional_proto_dirs: "api"
+    exclude_file_regexps: "^google/.*"
+    integrity: "h1:4nAPNl8pky8HZ2bWJFMnn5yWqxOmrxfq2+1wXP8NmuQ="
+    getter_url: "git::https://github.com/envoyproxy/ratelimit.git?depth=0&ref=19f2079"
+    file_descriptor_set_sum: "f771a953d6cab568bda50a4b649b7c0dc56a4afba37d2f6f444ce56c1382ed0f"
+  }
+}
+deps: {
+  key: "xds"
+  value: {
+    label: "com_github_cncf_xds_0335649"
+    url: "github.com/cncf/xds"
+    commit: "0335649"
+    source_path: "src"
+    additional_proto_dirs: "."
+    integrity: "h1:/cB8uyWuYkMqKQ5/GJFWHlQTX7blK7ctQORKuDp1khs="
+    getter_url: "git::https://github.com/cncf/xds.git?depth=0&ref=0335649"
+    file_descriptor_set_sum: "8a908df38c75b4dfd3049af5b1057c8d18631bdef9408b98556cd78269cc1a1e"
+  }
+}
