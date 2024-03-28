@@ -1,0 +1,10 @@
+def Chain(msg, *hooks):
+    queue = list(hooks)
+    queue.append(lambda m, _: m)
+
+    def run_next(c):
+        next = queue.pop(0)
+        return next(c, run_next)
+
+    first = queue.pop(0)
+    return first(msg, run_next)

@@ -1,0 +1,101 @@
+load("chain.pinc", "Chain")
+load("@envoy//envoy/config/cluster/v3/cluster.proto", ClusterProto="Cluster")
+load("@envoy//envoy/config/endpoint/v3/endpoint.proto", "ClusterLoadAssignment")
+load(
+    "@envoy//envoy/config/endpoint/v3/endpoint_components.proto",
+    "LocalityLbEndpoints",
+    "LbEndpoint",
+    "Endpoint",
+)
+load("@envoy//envoy/config/core/v3/address.proto", "Address", "SocketAddress")
+load(
+    "@envoy//envoy/extensions/transport_sockets/tls/v3/tls.proto", "UpstreamTlsContext"
+)
+load("@envoy//envoy/config/core/v3/base.proto", "TransportSocket")
+load("//example/wellknown.pinc", "wellknown")
+load("any.star", "any")
+
+
+def Cluster(name, *hooks):
+    def cluster(snapshot, next):
+        if not snapshot.clusters:
+            snapshot.clusters = []
+        snapshot.clusters.append(Chain(ClusterProto(name=name), *hooks))
+        return next(snapshot)
+
+    return cluster
+
+
+def WithConnectTimeout(timeout):
+    def connect_timeout(cluster, next):
+        cluster.connect_timeout = timeout
+        return next(cluster)
+
+    return connect_timeout
+
+
+def WithLbPolicy(policy):
+    def lb_policy(cluster, next):
+        cluster.lb_policy = policy
+        return next(cluster)
+
+    return lb_policy
+
+
+RoundRobin = WithLbPolicy(ClusterProto.LbPolicy.ROUND_ROBIN)
+LeastRequest = WithLbPolicy(ClusterProto.LbPolicy.LEAST_REQUEST)
+# RING_HASH = 2;
+# RANDOM = 3;
+# MAGLEV = 5;
+# CLUSTER_PROVIDED = 6;
+# LOAD_BALANCING_POLICY_CONFIG = 7;
+
+
+def WithDiscoveryType(disco_type):
+    def discovery_type(cluster, next):
+        cluster.type = disco_type
+        return next(cluster)
+
+    return discovery_type
+
+
+DnsDiscovery = WithDiscoveryType(ClusterProto.DiscoveryType.LOGICAL_DNS)
+
+
+def WithEndpoint(address, port, *hooks):
+    def endpoint(cluster, next):
+        if not cluster.load_assignment:
+            cluster.load_assignment = ClusterLoadAssignment(cluster_name=cluster.name)
+        if not cluster.load_assignment.endpoints:
+            cluster.load_assignment.endpoints = []
+        l = Chain(
+            LocalityLbEndpoints(
+                lb_endpoints=[
+                    LbEndpoint(
+                        endpoint=Endpoint(
+                            address=Address(
+                                socket_address=SocketAddress(
+                                    address=address, port_value=port
+                                )
+                            )
+                        )
+                    )
+                ],
+            ),
+            *hooks
+        )
+        cluster.load_assignment.endpoints.append(l)
+        return next(cluster)
+
+    return endpoint
+
+
+def UpstreamTLS(**kwargs):
+    def set_tls(cluster, next):
+        cluster.transport_socket = TransportSocket(
+            name=wellknown.TransportSocketTLS,
+            typed_config=any.new(UpstreamTlsContext(**kwargs)),
+        )
+        return next(cluster)
+
+    return set_tls

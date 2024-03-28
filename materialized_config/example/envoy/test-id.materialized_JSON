@@ -4,11 +4,12 @@
     "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
     "clusters": [
       {
-        "name": "remote_cluster",
+        "name": "origin",
         "type": "LOGICAL_DNS",
         "connectTimeout": "5s",
+        "lbPolicy": "LEAST_REQUEST",
         "loadAssignment": {
-          "clusterName": "remote_cluster",
+          "clusterName": "origin",
           "endpoints": [
             {
               "lbEndpoints": [
@@ -26,7 +27,6 @@
             }
           ]
         },
-        "dnsLookupFamily": "V4_ONLY",
         "transportSocket": {
           "name": "envoy.transport_sockets.tls",
           "typedConfig": {
@@ -34,26 +34,57 @@
             "sni": "www.protoconf.dev"
           }
         }
+      },
+      {
+        "name": "google",
+        "type": "LOGICAL_DNS",
+        "loadAssignment": {
+          "clusterName": "google",
+          "endpoints": [
+            {
+              "lbEndpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socketAddress": {
+                        "address": "google.com",
+                        "portValue": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
       }
     ],
     "routes": [
       {
-        "name": "local_route",
+        "name": "default",
         "virtualHosts": [
           {
-            "name": "local_service",
+            "name": "default",
             "domains": [
-              "*",
-              "local_service"
+              "*"
             ],
             "routes": [
               {
                 "match": {
-                  "prefix": "/"
+                  "prefix": "/protoconf"
                 },
                 "route": {
-                  "cluster": "remote_cluster",
+                  "cluster": "origin",
                   "hostRewriteLiteral": "www.protoconf.dev"
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/google"
+                },
+                "route": {
+                  "cluster": "google",
+                  "hostRewriteLiteral": "google.com"
                 }
               }
             ]
@@ -63,7 +94,7 @@
     ],
     "listeners": [
       {
-        "name": "listener_0",
+        "name": "default",
         "address": {
           "socketAddress": {
             "address": "0.0.0.0",
@@ -94,7 +125,7 @@
                       },
                       "resourceApiVersion": "V3"
                     },
-                    "routeConfigName": "local_route"
+                    "routeConfigName": "default"
                   },
                   "httpFilters": [
                     {
@@ -107,22 +138,6 @@
                 }
               }
             ]
-          }
-        ]
-      }
-    ],
-    "ratelimits": [
-      {
-        "domain": "local_service",
-        "descriptors": [
-          {
-            "key": "remote_address",
-            "value": "blah",
-            "rateLimit": {
-              "unit": "MINUTE",
-              "requestsPerUnit": 10000,
-              "name": "local_service_limit"
-            }
           }
         ]
       }
