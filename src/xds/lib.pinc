@@ -1,0 +1,48 @@
+load("chain.pinc", "Chain")
+load("//protoconfxds/v1/protoconfxds.proto", "XDSSnapshot")
+load(
+    "cluster.pinc",
+    "Cluster",
+    "WithConnectTimeout",
+    "WithLbPolicy",
+    "RoundRobin",
+    "LeastRequest",
+    "WithDiscoveryType",
+    "DnsDiscovery",
+    "WithEndpoint",
+    "UpstreamTLS",
+)
+load("listener.pinc", "Listener", "WithTCP", "WithRdsHTTPRoute")
+load("routes.pinc", "VirtualHost", "Domains", "ToCluster", "IfPrefix", "HostRewrite")
+
+
+def Snapshot(*hooks):
+    return Chain(XDSSnapshot(), *hooks)
+
+
+def Debug(msg, next):
+    print(msg)
+    return next(msg)
+
+
+xds = struct(
+    Snapshot=Snapshot,
+    Cluster=Cluster,
+    WithConnectTimeout=WithConnectTimeout,
+    WithLbPolicy=WithLbPolicy,
+    RoundRobin=RoundRobin,
+    LeastRequest=LeastRequest,
+    WithDiscoveryType=WithDiscoveryType,
+    DnsDiscovery=DnsDiscovery,
+    WithEndpoint=WithEndpoint,
+    UpstreamTLS=UpstreamTLS,
+    Listener=Listener,
+    WithTCP=WithTCP,
+    WithRdsHTTPRoute=WithRdsHTTPRoute,
+    VirtualHost=VirtualHost,
+    Domains=Domains,
+    ToCluster=ToCluster,
+    IfPrefix=IfPrefix,
+    HostRewrite=HostRewrite,
+    Debug=Debug,
+)

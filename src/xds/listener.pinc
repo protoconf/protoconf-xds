@@ -1,0 +1,108 @@
+load("chain.pinc", "Chain")
+load("//example/wellknown.pinc", "wellknown")
+load("@envoy//envoy/config/listener/v3/listener.proto", ListenerProto="Listener")
+load("@envoy//envoy/config/core/v3/address.proto", "Address", "SocketAddress")
+load(
+    "@envoy//envoy/config/listener/v3/listener_components.proto",
+    "FilterChain",
+    "Filter",
+)
+load("@envoy//envoy/extensions/filters/http/router/v3/router.proto", "Router")
+load(
+    "@envoy//envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto",
+    "HttpConnectionManager",
+    "Rds",
+    "HttpFilter",
+)
+load(
+    "@envoy//envoy/config/core/v3/config_source.proto",
+    "ConfigSource",
+    "ApiConfigSource",
+    "ApiVersion",
+)
+load("@envoy//envoy/config/core/v3/grpc_service.proto", "GrpcService")
+load("any.star", "any")
+
+
+def Listener(name, *hooks):
+    def listener(snapshot, next):
+        if not snapshot.listeners:
+            snapshot.listeners = []
+        snapshot.listeners.append(Chain(ListenerProto(name=name), *hooks))
+        return next(snapshot)
+
+    return listener
+
+
+def WithTCP(address, port):
+    def tcp_listener(listener, next):
+        listener.address = Address(
+            socket_address=SocketAddress(
+                protocol=SocketAddress.Protocol.TCP, address=address, port_value=port
+            )
+        )
+        return next(listener)
+
+    return tcp_listener
+
+
+def WithRdsHTTPRoute(name, *hooks):
+    routerConfig = any.new(Router())
+    # HTTP filter configuration
+    manager = HttpConnectionManager(
+        codec_type=HttpConnectionManager.CodecType.AUTO,
+        stat_prefix="http",
+        rds=Rds(config_source=makeConfigSource(), route_config_name=name,),
+        http_filters=[HttpFilter(name=wellknown.Router, typed_config=routerConfig,)],
+    )
+
+    def http_router(listener, next):
+        if not listener.filter_chains:
+            listener.filter_chains = []
+        listener.filter_chains.append(
+            FilterChain(
+                filters=[
+                    Filter(
+                        name=wellknown.HTTPConnectionManager,
+                        typed_config=any.new(manager),
+                    )
+                ]
+            )
+        )
+        return next(listener)
+
+    return http_router
+
+
+def makeConfigSource():
+    source = ConfigSource(
+        resource_api_version=ApiVersion.V3,
+        api_config_source=ApiConfigSource(
+            transport_api_version=ApiVersion.V3,
+            api_type=ApiConfigSource.ApiType.GRPC,
+            set_node_on_first_message_only=True,
+            grpc_services=[
+                GrpcService(
+                    envoy_grpc=GrpcService.EnvoyGrpc(cluster_name="xds_cluster")
+                )
+            ],
+        ),
+    )
+    return source
+
+
+def makeConfigSource():
+    source = ConfigSource(
+        resource_api_version=ApiVersion.V3,
+        api_config_source=ApiConfigSource(
+            transport_api_version=ApiVersion.V3,
+            api_type=ApiConfigSource.ApiType.GRPC,
+            set_node_on_first_message_only=True,
+            grpc_services=[
+                GrpcService(
+                    envoy_grpc=GrpcService.EnvoyGrpc(cluster_name="xds_cluster")
+                )
+            ],
+        ),
+    )
+    return source

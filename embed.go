@@ -4,5 +4,5 @@ import (
 	"embed"
 )
 
-//go:embed src
+//go:embed CONFIGSPACE
 var InitTemplate embed.FS

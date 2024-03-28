@@ -1,0 +1,65 @@
+load("chain.pinc", "Chain")
+load("@envoy//envoy/config/route/v3/route.proto", "RouteConfiguration")
+load(
+    "@envoy//envoy/config/route/v3/route_components.proto",
+    "Route",
+    "RouteMatch",
+    "RouteAction",
+    VirtualHostProto="VirtualHost",
+)
+
+
+def VirtualHost(name, *hooks):
+    def set_virtual_host(snapshot, next):
+        if not snapshot.routes:
+            snapshot.routes = []
+        snapshot.routes.append(
+            RouteConfiguration(
+                name=name, virtual_hosts=[Chain(VirtualHostProto(name=name), *hooks)]
+            )
+        )
+        return next(snapshot)
+
+    return set_virtual_host
+
+
+def Domains(*domains):
+    def set_domains(vhost, next):
+        if not vhost.domains:
+            vhost.domains = []
+        vhost.domains.extend(domains)
+        return next(vhost)
+
+    return set_domains
+
+
+def ToCluster(cluster_name, *hooks):
+    def set_to_cluster(vhost, next):
+        if not vhost.routes:
+            vhost.routes = []
+        vhost.routes.append(
+            Chain(Route(route=RouteAction(cluster=cluster_name)), *hooks)
+        )
+        return next(vhost)
+
+    return set_to_cluster
+
+
+def IfPrefix(prefix):
+    def set_if_prefix(route, next):
+        if not route.match:
+            route.match = RouteMatch()
+        route.match.prefix = prefix
+        return next(route)
+
+    return set_if_prefix
+
+
+def HostRewrite(host):
+    def set_host_rewrite(route, next):
+        if not route.route:
+            route.route = RouteAction()
+        route.route.host_rewrite_literal = host
+        return next(route)
+
+    return set_host_rewrite

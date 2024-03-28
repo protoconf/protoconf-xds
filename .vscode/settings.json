@@ -3,7 +3,7 @@
   "files.associations": {
     "*.pconf": "Starlark",
     "*.mpconf": "Starlark",
-    "*.pinc": "Starlark",
+    "*.pinc": "starlark",
     "*.proto-validator": "Starlark",
     "*.materialized_JSON": "json"
   }

@@ -16,7 +16,7 @@ ratelimit = remote_repo(
     exclude_file_regexps=["^google/.*"],
 )
 
-xds = remote_repo(
+xds_proto = remote_repo(
     url="github.com/cncf/xds",
     commit="0335649",
     additional_proto_dirs=["."],
@@ -38,16 +38,8 @@ googleapis = remote_repo(
     ],
 )
 
+# Uncomment this in order to get the xds helpers
 # xds = remote_repo(
 #     url="github.com/protoconf/protoconf-xds",
-#     branch="main",
-#     exclude_file_regexps=[
-#         "google/.*",
-#         "envoy/.*",
-#         "io/prometheus/.*",
-#         "opencensus/.*",
-#         "opentelemetry/.*",
-#         "udpa/.*",
-#         "validate/.*",
-#     ],
+#     tag="v0.1.2",
 # )
