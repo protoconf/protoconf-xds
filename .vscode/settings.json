@@ -6,5 +6,6 @@
     "*.pinc": "starlark",
     "*.proto-validator": "Starlark",
     "*.materialized_JSON": "json"
-  }
+  },
+  "editor.formatOnSave": true
 }

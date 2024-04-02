@@ -5,8 +5,11 @@ load(
     "Route",
     "RouteMatch",
     "RouteAction",
+    "DirectResponseAction",
+    "RateLimit",
     VirtualHostProto="VirtualHost",
 )
+load("@envoy//envoy/config/core/v3/base.proto", "DataSource")
 
 
 def VirtualHost(name, *hooks):
@@ -45,6 +48,25 @@ def ToCluster(cluster_name, *hooks):
     return set_to_cluster
 
 
+def DirectResponse(body, *hooks, code=200):
+    def set_direct_response(vhost, next):
+        if not vhost.routes:
+            vhost.routes = []
+        vhost.routes.append(
+            Chain(
+                Route(
+                    direct_response=DirectResponseAction(
+                        status=code, body=DataSource(inline_string=body)
+                    )
+                ),
+                *hooks
+            )
+        )
+        return next(vhost)
+
+    return set_direct_response
+
+
 def IfPrefix(prefix):
     def set_if_prefix(route, next):
         if not route.match:
@@ -63,3 +85,28 @@ def HostRewrite(host):
         return next(route)
 
     return set_host_rewrite
+
+
+def SetRouteRateLimit(rate_limit):
+    def set_route_rate_limit(route, next):
+        if not route.route:
+            route.route = RouteAction()
+        route.route.rate_limits.append(rate_limit)
+        return next(route)
+
+    return set_route_rate_limit
+
+
+def SetRouteRateLimitKeyHeader(**kwargs):
+    return SetRouteRateLimit(
+        RateLimit(
+            actions=[
+                RateLimit.Action(
+                    request_headers=RateLimit.Action.RequestHeaders(
+                        header_name=header, descriptor_key=key
+                    )
+                )
+                for key, header in kwargs.items()
+            ],
+        )
+    )

@@ -9,11 +9,33 @@ load(
     "LeastRequest",
     "WithDiscoveryType",
     "DnsDiscovery",
+    "LogicalDNS",
+    "StrictDNS",
     "WithEndpoint",
     "UpstreamTLS",
 )
-load("listener.pinc", "Listener", "WithTCP", "WithRdsHTTPRoute")
-load("routes.pinc", "VirtualHost", "Domains", "ToCluster", "IfPrefix", "HostRewrite")
+load("listener.pinc", "Listener", "WithTCP", "WithRdsHTTPRoute", "WithRateLimitDomain")
+load(
+    "routes.pinc",
+    "VirtualHost",
+    "Domains",
+    "ToCluster",
+    "IfPrefix",
+    "HostRewrite",
+    "DirectResponse",
+    "SetRouteRateLimit",
+    "SetRouteRateLimitKeyHeader",
+)
+load(
+    "ratelimit.pinc",
+    "RateLimit",
+    "AddDescriptor",
+    "AddPolicy",
+    "PerMinute",
+    "PerSecond",
+    "Replaces",
+    "WithName",
+)
 
 
 def Snapshot(*hooks):
@@ -34,6 +56,8 @@ xds = struct(
     LeastRequest=LeastRequest,
     WithDiscoveryType=WithDiscoveryType,
     DnsDiscovery=DnsDiscovery,
+    StrictDNS=StrictDNS,
+    LogicalDNS=LogicalDNS,
     WithEndpoint=WithEndpoint,
     UpstreamTLS=UpstreamTLS,
     Listener=Listener,
@@ -44,5 +68,16 @@ xds = struct(
     ToCluster=ToCluster,
     IfPrefix=IfPrefix,
     HostRewrite=HostRewrite,
+    DirectResponse=DirectResponse,
+    WithRateLimitDomain=WithRateLimitDomain,
+    SetRouteRateLimit=SetRouteRateLimit,
+    SetRouteRateLimitKeyHeader=SetRouteRateLimitKeyHeader,
+    RateLimit=RateLimit,
+    AddDescriptor=AddDescriptor,
+    AddPolicy=AddPolicy,
+    PerMinute=PerMinute,
+    PerSecond=PerSecond,
+    Replaces=Replaces,
+    WithName=WithName,
     Debug=Debug,
 )

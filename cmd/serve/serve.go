@@ -102,7 +102,7 @@ func (c *Command) Run(args []string) int {
 	xdsCache := cache.NewSnapshotCache(false, cache.IDHash{}, c.logger)
 
 	conn, err := grpc.Dial(
-		"localhost:4300",
+		c.config.ProtoconfAgentAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

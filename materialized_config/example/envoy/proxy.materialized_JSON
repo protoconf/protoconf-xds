@@ -1,0 +1,334 @@
+{
+  "protoFile": "protoconfxds/v1/protoconfxds.proto",
+  "value": {
+    "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
+    "clusters": [
+      {
+        "name": "mock",
+        "type": "STRICT_DNS",
+        "connectTimeout": "1s",
+        "loadAssignment": {
+          "clusterName": "mock",
+          "endpoints": [
+            {
+              "lbEndpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socketAddress": {
+                        "address": "envoy-mock",
+                        "portValue": 9999
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "name": "ratelimit",
+        "type": "STRICT_DNS",
+        "connectTimeout": "1s",
+        "loadAssignment": {
+          "clusterName": "ratelimit",
+          "endpoints": [
+            {
+              "lbEndpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socketAddress": {
+                        "address": "ratelimit",
+                        "portValue": 8081
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "routes": [
+      {
+        "name": "backend",
+        "virtualHosts": [
+          {
+            "name": "backend",
+            "domains": [
+              "*"
+            ],
+            "routes": [
+              {
+                "match": {
+                  "prefix": "/hello"
+                },
+                "directResponse": {
+                  "status": 200,
+                  "body": {
+                    "inlineString": "Hello World!"
+                  }
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/test"
+                },
+                "route": {
+                  "cluster": "mock"
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/header"
+                },
+                "route": {
+                  "cluster": "mock",
+                  "rateLimits": [
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "foo",
+                            "descriptorKey": "foo"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/twoheader"
+                },
+                "route": {
+                  "cluster": "mock",
+                  "rateLimits": [
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "foo",
+                            "descriptorKey": "foo"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "bar",
+                            "descriptorKey": "bar"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "foo",
+                            "descriptorKey": "foo"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "bar",
+                            "descriptorKey": "bar"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/fourheader"
+                },
+                "route": {
+                  "cluster": "mock",
+                  "rateLimits": [
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "foo",
+                            "descriptorKey": "foo"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "bar",
+                            "descriptorKey": "bar"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "source_cluster",
+                            "descriptorKey": "source_cluster"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "destination_cluster",
+                            "descriptorKey": "destination_cluster"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/fiveheader"
+                },
+                "route": {
+                  "cluster": "mock",
+                  "rateLimits": [
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "foo",
+                            "descriptorKey": "foo"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "bar",
+                            "descriptorKey": "bar"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "source_cluster",
+                            "descriptorKey": "source_cluster"
+                          }
+                        },
+                        {
+                          "requestHeaders": {
+                            "headerName": "destination_cluster",
+                            "descriptorKey": "destination_cluster"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "category",
+                            "descriptorKey": "category"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "match": {
+                  "prefix": "/unspec"
+                },
+                "route": {
+                  "cluster": "mock",
+                  "rateLimits": [
+                    {
+                      "actions": [
+                        {
+                          "requestHeaders": {
+                            "headerName": "unspec",
+                            "descriptorKey": "unspec"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "listeners": [
+      {
+        "name": "default",
+        "address": {
+          "socketAddress": {
+            "address": "0.0.0.0",
+            "portValue": 8888
+          }
+        },
+        "filterChains": [
+          {
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "statPrefix": "http",
+                  "rds": {
+                    "configSource": {
+                      "apiConfigSource": {
+                        "apiType": "GRPC",
+                        "transportApiVersion": "V3",
+                        "grpcServices": [
+                          {
+                            "envoyGrpc": {
+                              "clusterName": "xds_cluster"
+                            }
+                          }
+                        ],
+                        "setNodeOnFirstMessageOnly": true
+                      },
+                      "resourceApiVersion": "V3"
+                    },
+                    "routeConfigName": "backend"
+                  },
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.ratelimit",
+                      "typedConfig": {
+                        "@type": "type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimit",
+                        "domain": "rl",
+                        "requestType": "external",
+                        "rateLimitedAsResourceExhausted": true,
+                        "rateLimitService": {
+                          "grpcService": {
+                            "envoyGrpc": {
+                              "clusterName": "ratelimit"
+                            }
+                          },
+                          "transportApiVersion": "V3"
+                        },
+                        "enableXRatelimitHeaders": "DRAFT_VERSION_03"
+                      }
+                    },
+                    {
+                      "name": "envoy.filters.http.router",
+                      "typedConfig": {
+                        "@type": "type.googleapis.com/envoy.extensions.filters.http.router.v3.Router"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

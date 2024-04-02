@@ -1,0 +1,70 @@
+load("chain.pinc", "Chain")
+load(
+    "@ratelimit//ratelimit/config/ratelimit/v3/rls_conf.proto",
+    "RateLimitConfig",
+    "RateLimitDescriptor",
+    "RateLimitPolicy",
+    "RateLimitUnit",
+    "RateLimitReplace",
+)
+
+
+def RateLimit(domain, *hooks):
+    def rate_limit(snapshot, next):
+        if not snapshot.ratelimits:
+            snapshot.ratelimits = []
+        snapshot.ratelimits.append(
+            Chain(RateLimitConfig(name=domain, domain=domain, descriptors=[],), *hooks)
+        )
+        return next(snapshot)
+
+    return rate_limit
+
+
+def AddDescriptor(key, value, *hooks, **kwargs):
+    def add_descriptor(rl, next):
+        if not rl.descriptors:
+            rl.descriptors = []
+        rl.descriptors.append(
+            Chain(RateLimitDescriptor(key=key, value=value, **kwargs), *hooks)
+        )
+        return next(rl)
+
+    return add_descriptor
+
+
+def AddPolicy(requests, unit, *hooks):
+    def add_policy(desc, next):
+        desc.rate_limit = Chain(
+            RateLimitPolicy(requests_per_unit=requests, unit=unit,), *hooks
+        )
+
+        return next(desc)
+
+    return add_policy
+
+
+def PerMinute(requests, *hooks):
+    return AddPolicy(requests, RateLimitUnit.MINUTE, *hooks)
+
+
+def PerSecond(requests, *hooks):
+    return AddPolicy(requests, RateLimitUnit.SECOND, *hooks)
+
+
+def Replaces(*names):
+    def replaces(policy, next):
+        if not policy.replaces:
+            policy.replaces = []
+        policy.replaces.extend([RateLimitReplace(name=name) for name in names])
+        return next(policy)
+
+    return replaces
+
+
+def WithName(name):
+    def with_name(policy, next):
+        policy.name = name
+        return next(policy)
+
+    return with_name

@@ -21,6 +21,8 @@ load(
     "ApiVersion",
 )
 load("@envoy//envoy/config/core/v3/grpc_service.proto", "GrpcService")
+load("@envoy//envoy/extensions/filters/http/ratelimit/v3/rate_limit.proto", "RateLimit")
+load("@envoy//envoy/config/ratelimit/v3/rls.proto", "RateLimitServiceConfig")
 load("any.star", "any")
 
 
@@ -49,11 +51,17 @@ def WithTCP(address, port):
 def WithRdsHTTPRoute(name, *hooks):
     routerConfig = any.new(Router())
     # HTTP filter configuration
-    manager = HttpConnectionManager(
-        codec_type=HttpConnectionManager.CodecType.AUTO,
-        stat_prefix="http",
-        rds=Rds(config_source=makeConfigSource(), route_config_name=name,),
-        http_filters=[HttpFilter(name=wellknown.Router, typed_config=routerConfig,)],
+    manager = Chain(
+        HttpConnectionManager(
+            codec_type=HttpConnectionManager.CodecType.AUTO,
+            stat_prefix="http",
+            rds=Rds(config_source=makeConfigSource(), route_config_name=name,),
+            http_filters=[],
+        ),
+        *hooks
+    )
+    manager.http_filters.append(
+        HttpFilter(name=wellknown.Router, typed_config=routerConfig,)
     )
 
     def http_router(listener, next):
@@ -72,6 +80,57 @@ def WithRdsHTTPRoute(name, *hooks):
         return next(listener)
 
     return http_router
+
+
+def WithRateLimitDomain(domain, cluster_name="ratelimit"):
+    def rate_limit(manager, next):
+        manager.http_filters.append(
+            HttpFilter(
+                name=wellknown.HTTPRateLimit,
+                typed_config=any.new(
+                    RateLimit(
+                        domain=domain,
+                        stage=0,
+                        request_type="external",
+                        rate_limited_as_resource_exhausted=True,
+                        failure_mode_deny=False,
+                        enable_x_ratelimit_headers=RateLimit.XRateLimitHeadersRFCVersion.DRAFT_VERSION_03,
+                        rate_limit_service=RateLimitServiceConfig(
+                            grpc_service=GrpcService(
+                                envoy_grpc=GrpcService.EnvoyGrpc(
+                                    cluster_name=cluster_name,
+                                )
+                            ),
+                            transport_api_version=ApiVersion.V3,
+                        ),
+                    )
+                    # {
+                    #     "domain": domain,
+                    #     "stage": 0,
+                    #     "timeout": "10s",
+                    #     "failure_mode_deny": False,
+                    #     "rate_limited_as_resource_exhausted": False,
+                    #     "disable_key": False,
+                    #     "filters": [
+                    #         {
+                    #             "type": "local_rate_limit",
+                    #             "config": {
+                    #                 "stat_prefix": "local_rate_limiter",
+                    #                 "token_bucket": {
+                    #                     "max_tokens": 1,
+                    #                     "tokens_per_fill": 1,
+                    #                     "fill_interval": {"seconds": 1},
+                    #                 },
+                    #             },
+                    #         }
+                    #     ],
+                    # }
+                ),
+            )
+        )
+        return next(manager)
+
+    return rate_limit
 
 
 def makeConfigSource():

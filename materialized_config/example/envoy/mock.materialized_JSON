@@ -2,63 +2,6 @@
   "protoFile": "protoconfxds/v1/protoconfxds.proto",
   "value": {
     "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
-    "clusters": [
-      {
-        "name": "origin",
-        "type": "LOGICAL_DNS",
-        "connectTimeout": "5s",
-        "lbPolicy": "LEAST_REQUEST",
-        "loadAssignment": {
-          "clusterName": "origin",
-          "endpoints": [
-            {
-              "lbEndpoints": [
-                {
-                  "endpoint": {
-                    "address": {
-                      "socketAddress": {
-                        "address": "www.protoconf.dev",
-                        "portValue": 443
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        "transportSocket": {
-          "name": "envoy.transport_sockets.tls",
-          "typedConfig": {
-            "@type": "type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext",
-            "sni": "www.protoconf.dev"
-          }
-        }
-      },
-      {
-        "name": "google",
-        "type": "LOGICAL_DNS",
-        "loadAssignment": {
-          "clusterName": "google",
-          "endpoints": [
-            {
-              "lbEndpoints": [
-                {
-                  "endpoint": {
-                    "address": {
-                      "socketAddress": {
-                        "address": "google.com",
-                        "portValue": 80
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
     "routes": [
       {
         "name": "default",
@@ -71,20 +14,13 @@
             "routes": [
               {
                 "match": {
-                  "prefix": "/protoconf"
+                  "prefix": "/"
                 },
-                "route": {
-                  "cluster": "origin",
-                  "hostRewriteLiteral": "www.protoconf.dev"
-                }
-              },
-              {
-                "match": {
-                  "prefix": "/google"
-                },
-                "route": {
-                  "cluster": "google",
-                  "hostRewriteLiteral": "google.com"
+                "directResponse": {
+                  "status": 200,
+                  "body": {
+                    "inlineString": "Hello World!\n"
+                  }
                 }
               }
             ]
@@ -98,7 +34,7 @@
         "address": {
           "socketAddress": {
             "address": "0.0.0.0",
-            "portValue": 10000
+            "portValue": 9999
           }
         },
         "filterChains": [

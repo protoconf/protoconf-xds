@@ -60,6 +60,8 @@ def WithDiscoveryType(disco_type):
 
 
 DnsDiscovery = WithDiscoveryType(ClusterProto.DiscoveryType.LOGICAL_DNS)
+LogicalDNS = WithDiscoveryType(ClusterProto.DiscoveryType.LOGICAL_DNS)
+StrictDNS = WithDiscoveryType(ClusterProto.DiscoveryType.STRICT_DNS)
 
 
 def WithEndpoint(address, port, *hooks):

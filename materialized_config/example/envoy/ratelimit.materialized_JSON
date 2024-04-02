@@ -1,0 +1,112 @@
+{
+  "protoFile": "protoconfxds/v1/protoconfxds.proto",
+  "value": {
+    "@type": "type.googleapis.com/protoconfenvoy.v1.XDSSnapshot",
+    "ratelimits": [
+      {
+        "name": "rl",
+        "domain": "rl",
+        "descriptors": [
+          {
+            "key": "category",
+            "value": "account",
+            "rateLimit": {
+              "unit": "MINUTE",
+              "requestsPerUnit": 4,
+              "replaces": [
+                {
+                  "name": "fake_name"
+                },
+                {
+                  "name": "bkthomps"
+                }
+              ]
+            }
+          },
+          {
+            "key": "source_cluster",
+            "value": "proxy",
+            "descriptors": [
+              {
+                "key": "destination_cluster",
+                "value": "bkthompsa",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 2,
+                  "replaces": [
+                    {
+                      "name": "bkthomps"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "destination_cluster",
+                "value": "mock",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 1
+                }
+              },
+              {
+                "key": "destination_cluster",
+                "value": "override",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 2,
+                  "replaces": [
+                    {
+                      "name": "banned_limit"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "destination_cluster",
+                "value": "fake",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 2,
+                  "name": "fake_name"
+                }
+              }
+            ]
+          },
+          {
+            "key": "foo",
+            "rateLimit": {
+              "unit": "MINUTE",
+              "requestsPerUnit": 2
+            },
+            "descriptors": [
+              {
+                "key": "bar",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 3
+                }
+              },
+              {
+                "key": "bar",
+                "value": "bkthomps",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "requestsPerUnit": 1,
+                  "name": "bkthomps"
+                }
+              },
+              {
+                "key": "bar",
+                "value": "banned",
+                "rateLimit": {
+                  "unit": "MINUTE",
+                  "name": "banned_limit"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

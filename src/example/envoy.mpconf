@@ -2,73 +2,125 @@
 envoy helpers
 """
 load("/google/protobuf/duration.proto", "Duration")
-load(
-    "@ratelimit//ratelimit/config/ratelimit/v3/rls_conf.proto",
-    "RateLimitConfig",
-    "RateLimitDescriptor",
-    "RateLimitPolicy",
-    "RateLimitUnit",
-)
 load("//xds/lib.pinc", "xds")
-
-
-ClusterName = "remote_cluster"
-RouteName = "local_route"
-ListenerName = "listener_0"
-ListenerPort = 10000
-UpstreamHost = "www.protoconf.dev"
-UpstreamPort = 443
-
-
-def makeRateLimiters():
-    return [
-        RateLimitConfig(
-            domain="local_service",
-            descriptors=[
-                RateLimitDescriptor(
-                    key="remote_address",
-                    value="blah",
-                    rate_limit=RateLimitPolicy(
-                        name="local_service_limit",
-                        unit=RateLimitUnit.MINUTE,
-                        requests_per_unit=10000,
-                    ),
-                )
-            ],
-        )
-    ]
-
-
-# print(makeRateLimiters())
 
 
 def main():
     return {
-        "test-id": xds.Snapshot(
-            xds.Cluster(
-                "origin",
-                xds.LeastRequest,
-                xds.DnsDiscovery,
-                xds.WithEndpoint(UpstreamHost, UpstreamPort),
-                xds.WithConnectTimeout(Duration(seconds=5)),
-                xds.UpstreamTLS(sni=UpstreamHost),
-            ),
-            xds.Cluster(
-                "google", xds.WithEndpoint("google.com", 80), xds.DnsDiscovery
-            ),
-            xds.Listener(
-                "default",
-                xds.WithTCP("0.0.0.0", 10000),
-                xds.WithRdsHTTPRoute("default"),
-            ),
+        "ratelimit": xds.Snapshot(
+            xds.RateLimit(
+                "rl",
+                xds.AddDescriptor(
+                    "category",
+                    "account",
+                    xds.PerMinute(4, xds.Replaces("fake_name", "bkthomps"),),
+                ),
+                xds.AddDescriptor(
+                    "source_cluster",
+                    "proxy",
+                    xds.AddDescriptor(
+                        "destination_cluster",
+                        "bkthompsa",
+                        xds.PerMinute(2, xds.Replaces("bkthomps")),
+                    ),
+                    xds.AddDescriptor("destination_cluster", "mock", xds.PerMinute(1)),
+                    xds.AddDescriptor(
+                        "destination_cluster",
+                        "override",
+                        xds.PerMinute(2, xds.Replaces("banned_limit")),
+                    ),
+                    xds.AddDescriptor(
+                        "destination_cluster",
+                        "fake",
+                        xds.PerMinute(2, xds.WithName("fake_name")),
+                    ),
+                ),
+                xds.AddDescriptor(
+                    "foo",
+                    "",
+                    xds.PerMinute(2),
+                    xds.AddDescriptor("bar", "", xds.PerMinute(3)),
+                    xds.AddDescriptor(
+                        "bar", "bkthomps", xds.PerMinute(1, xds.WithName("bkthomps"))
+                    ),
+                    xds.AddDescriptor(
+                        "bar", "banned", xds.PerMinute(0, xds.WithName("banned_limit"))
+                    ),
+                ),
+            )
+        ),
+        "mock": xds.Snapshot(
             xds.VirtualHost(
                 "default",
                 xds.Domains("*"),
-                xds.ToCluster(
-                    "origin", xds.IfPrefix("/protoconf"), xds.HostRewrite(UpstreamHost)
-                ),
-                xds.ToCluster("google", xds.IfPrefix("/google"), xds.HostRewrite("google.com")),
+                xds.DirectResponse("Hello World!\n", xds.IfPrefix("/")),
             ),
-            xds.Debug,
-        )
+            xds.Listener(
+                "default",
+                xds.WithTCP("0.0.0.0", 9999),
+                xds.WithRdsHTTPRoute("default"),
+            ),
+        ),
+        "proxy": xds.Snapshot(
+            xds.Cluster(
+                "mock",
+                xds.RoundRobin,
+                xds.StrictDNS,
+                xds.WithEndpoint("envoy-mock", 9999),
+                xds.WithConnectTimeout(Duration(seconds=1)),
+            ),
+            xds.Cluster(
+                "ratelimit",
+                xds.RoundRobin,
+                xds.StrictDNS,
+                xds.WithEndpoint("ratelimit", 8081),
+                xds.WithConnectTimeout(Duration(seconds=1)),
+            ),
+            xds.Listener(
+                "default",
+                xds.WithTCP("0.0.0.0", 8888),
+                xds.WithRdsHTTPRoute("backend", xds.WithRateLimitDomain("rl")),
+            ),
+            xds.VirtualHost(
+                "backend",
+                xds.Domains("*"),
+                xds.DirectResponse("Hello World!", xds.IfPrefix("/hello")),
+                xds.ToCluster("mock", xds.IfPrefix("/test")),
+                xds.ToCluster(
+                    "mock",
+                    xds.IfPrefix("/header"),
+                    xds.SetRouteRateLimitKeyHeader(foo="foo"),
+                ),
+                xds.ToCluster(
+                    "mock",
+                    xds.IfPrefix("/twoheader"),
+                    xds.SetRouteRateLimitKeyHeader(foo="foo", bar="bar"),
+                    xds.SetRouteRateLimitKeyHeader(foo="foo", bar="bar"),
+                ),
+                xds.ToCluster(
+                    "mock",
+                    xds.IfPrefix("/fourheader"),
+                    xds.SetRouteRateLimitKeyHeader(foo="foo", bar="bar"),
+                    xds.SetRouteRateLimitKeyHeader(
+                        source_cluster="source_cluster",
+                        destination_cluster="destination_cluster",
+                    ),
+                ),
+                xds.ToCluster(
+                    "mock",
+                    xds.IfPrefix("/fiveheader"),
+                    xds.SetRouteRateLimitKeyHeader(foo="foo", bar="bar"),
+                    xds.SetRouteRateLimitKeyHeader(
+                        source_cluster="source_cluster",
+                        destination_cluster="destination_cluster",
+                    ),
+                    xds.SetRouteRateLimitKeyHeader(category="category"),
+                ),
+                xds.ToCluster(
+                    "mock",
+                    xds.IfPrefix("/unspec"),
+                    xds.SetRouteRateLimitKeyHeader(unspec="unspec"),
+                ),
+            ),
+        ),
     }

@@ -60,6 +60,26 @@ Protoconf XDS reads its configuration from the environment variables or command 
       type: string (default localhost:4300)
 ```
 
+### Running the example
+
+The example in this repository is inspired by Envoy's [ratelimit](https://github.com/envoyproxy/ratelimit) project.
+
+#### Architecture diagram
+
+![](docs/protoconf_xds_architechture.png)
+
+To run the `protoconf` agent:
+
+```sh
+protoconf agent -dev .
+```
+
+To run the `proxy`, `mock` and `ratelimit`:
+
+```sh
+docker-compose up
+```
+
 ### License
 
 Protoconf XDS is licensed under the MIT License. See `LICENSE` file for more information.
