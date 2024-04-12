@@ -84,4 +84,4 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/protoconf/protoconf-xds"
       - "--label=org.opencontainers.image.license=MIT"
       - "--label=org.opencontainers.image.description={{.ProjectName}}"
-      - "--platform=linux/amd64"
+      - "--platform=linux/amd64,linux/arm64""
