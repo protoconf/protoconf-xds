@@ -95,7 +95,7 @@ dockers:
       - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/protoconf/protoconf-xds:latest"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
-      -  "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
     use: buildx
