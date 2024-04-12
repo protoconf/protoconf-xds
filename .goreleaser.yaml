@@ -72,8 +72,10 @@ dockers:
       - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/protoconf/protoconf-xds:latest"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-amd64"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
+    use: buildx
     dockerfile: build/Dockerfile
     build_flag_templates:
       - "--pull"
@@ -93,8 +95,10 @@ dockers:
       - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/protoconf/protoconf-xds:latest"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+      -  "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
+    use: buildx
     dockerfile: build/Dockerfile
     build_flag_templates:
       - "--pull"
@@ -106,3 +110,9 @@ dockers:
       - "--label=org.opencontainers.image.license=MIT"
       - "--label=org.opencontainers.image.description={{.ProjectName}}"
       - "--platform=linux/arm64"
+    goarch: arm64
+docker_manifests:
+  - name_template: "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-amd64"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
