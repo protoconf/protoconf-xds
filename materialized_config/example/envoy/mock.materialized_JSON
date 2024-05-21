@@ -14,7 +14,9 @@
             "routes": [
               {
                 "match": {
-                  "prefix": "/"
+                  "safeRegex": {
+                    "regex": "^/"
+                  }
                 },
                 "directResponse": {
                   "status": 200,

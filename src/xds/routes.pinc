@@ -9,6 +9,7 @@ load(
     "RateLimit",
     VirtualHostProto="VirtualHost",
 )
+load("@envoy//envoy/type/matcher/v3/regex.proto", "RegexMatcher")
 load("@envoy//envoy/config/core/v3/base.proto", "DataSource")
 
 
@@ -70,8 +71,8 @@ def DirectResponse(body, *hooks, code=200):
 def IfPrefix(prefix):
     def set_if_prefix(route, next):
         if not route.match:
-            route.match = RouteMatch()
-        route.match.prefix = prefix
+            route.match = RouteMatch(safe_regex=RegexMatcher(regex=""))
+        route.match.safe_regex.regex = "^{prefix}".format(prefix=prefix)
         return next(route)
 
     return set_if_prefix

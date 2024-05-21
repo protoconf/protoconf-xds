@@ -64,7 +64,9 @@
             "routes": [
               {
                 "match": {
-                  "prefix": "/hello"
+                  "safeRegex": {
+                    "regex": "^/hello"
+                  }
                 },
                 "directResponse": {
                   "status": 200,
@@ -75,7 +77,9 @@
               },
               {
                 "match": {
-                  "prefix": "/test"
+                  "safeRegex": {
+                    "regex": "^/test"
+                  }
                 },
                 "route": {
                   "cluster": "mock"
@@ -83,7 +87,9 @@
               },
               {
                 "match": {
-                  "prefix": "/header"
+                  "safeRegex": {
+                    "regex": "^/header"
+                  }
                 },
                 "route": {
                   "cluster": "mock",
@@ -103,7 +109,9 @@
               },
               {
                 "match": {
-                  "prefix": "/twoheader"
+                  "safeRegex": {
+                    "regex": "^/twoheader"
+                  }
                 },
                 "route": {
                   "cluster": "mock",
@@ -145,7 +153,9 @@
               },
               {
                 "match": {
-                  "prefix": "/fourheader"
+                  "safeRegex": {
+                    "regex": "^/fourheader"
+                  }
                 },
                 "route": {
                   "cluster": "mock",
@@ -187,7 +197,9 @@
               },
               {
                 "match": {
-                  "prefix": "/fiveheader"
+                  "safeRegex": {
+                    "regex": "^/fiveheader"
+                  }
                 },
                 "route": {
                   "cluster": "mock",
@@ -239,7 +251,9 @@
               },
               {
                 "match": {
-                  "prefix": "/unspec"
+                  "safeRegex": {
+                    "regex": "^/unspec"
+                  }
                 },
                 "route": {
                   "cluster": "mock",

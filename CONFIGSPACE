@@ -1,4 +1,52 @@
-envoy = remote_repo(
+GOOGLE_APIS_COMMIT = "cbe62016a4eb24e71186899b79b9a4736f858653"
+googleapis = lambda: remote_repo(
+    url="https://github.com/googleapis/googleapis/archive/{0}.zip//googleapis-{0}/".format(
+        GOOGLE_APIS_COMMIT
+    ),
+    checksum="md5:94b23c0b21f289b3f189c77533fa7445",
+    additional_proto_dirs=["."],
+)
+cel = lambda: remote_repo(
+    url="github.com/google/cel-spec",
+    tag="v0.15.0",
+    additional_proto_dirs=["proto"],
+    exclude_file_regexps=[
+        "^test/.*",
+        "^proto/test/.*",
+        "test/.*",
+    ],
+    deps={"googleapis": googleapis()},
+)
+
+prometheus = lambda: remote_repo(
+    url="github.com/prometheus/client_model",
+    tag="v0.6.1",
+    additional_proto_dirs=["."],
+)
+
+xds_proto = lambda: remote_repo(
+    url="github.com/cncf/xds",
+    commit="555b57e",
+    additional_proto_dirs=["."],
+    exclude_file_regexps=[
+        "google/.*",
+        "bazel/.*",
+    ],
+    deps={
+        # "cel": cel(),
+        # "googleapis": googleapis(),
+    },
+)
+opencensus = lambda: remote_repo(
+    url="github.com/census-instrumentation/opencensus-proto",
+    tag="v0.4.1",
+)
+otel = lambda: remote_repo(
+    url="github.com/open-telemetry/opentelemetry-proto",
+    tag="v1.3.1",
+    additional_proto_dirs=["."],
+)
+envoy = lambda: remote_repo(
     url="github.com/envoyproxy/data-plane-api",
     commit="54a58fd",
     # load protos from repo's root (default is to load from `/src`)
@@ -8,35 +56,23 @@ envoy = remote_repo(
         "^google/.*",
         "^bazel/.*",
     ],
+    deps={
+        "xds_proto": xds_proto(),
+        "cel": cel(),
+        "opencensus": opencensus(),
+        "googleapis": googleapis(),
+        "prometheus": prometheus(),
+        "otel": otel(),
+    },
 )
 ratelimit = remote_repo(
     url="github.com/envoyproxy/ratelimit",
     commit="19f2079",
     additional_proto_dirs=["api"],
     exclude_file_regexps=["^google/.*"],
+    deps={"envoy": envoy()},
 )
 
-xds_proto = remote_repo(
-    url="github.com/cncf/xds",
-    commit="0335649",
-    additional_proto_dirs=["."],
-)
-
-GOOGLE_APIS_COMMIT = "cbe62016a4eb24e71186899b79b9a4736f858653"
-googleapis = remote_repo(
-    url="https://github.com/googleapis/googleapis/archive/{0}.zip//googleapis-{0}/".format(
-        GOOGLE_APIS_COMMIT
-    ),
-    # commit="cbe6201",
-    additional_proto_dirs=["."],
-    exclude_file_regexps=[
-        "^google/api/.*.proto",
-        "^google/rpc/.*.proto",
-        "^google/iam/.*.proto",
-        "^google/type/.*.proto",
-        "^google/storage/.*.proto",
-    ],
-)
 
 # Uncomment this in order to get the xds helpers
 # xds = remote_repo(
