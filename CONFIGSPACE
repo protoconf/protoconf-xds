@@ -4,12 +4,12 @@ googleapis = lambda: remote_repo(
         GOOGLE_APIS_COMMIT
     ),
     checksum="md5:94b23c0b21f289b3f189c77533fa7445",
-    additional_proto_dirs=["."],
+    source_path=".",
 )
 cel = lambda: remote_repo(
     url="github.com/google/cel-spec",
     tag="v0.15.0",
-    additional_proto_dirs=["proto"],
+    source_path="proto",
     exclude_file_regexps=[
         "^test/.*",
         "^proto/test/.*",
@@ -21,20 +21,20 @@ cel = lambda: remote_repo(
 prometheus = lambda: remote_repo(
     url="github.com/prometheus/client_model",
     tag="v0.6.1",
-    additional_proto_dirs=["."],
+    source_path=".",
 )
 
 xds_proto = lambda: remote_repo(
     url="github.com/cncf/xds",
     commit="555b57e",
-    additional_proto_dirs=["."],
+    source_path=".",
     exclude_file_regexps=[
         "google/.*",
         "bazel/.*",
     ],
     deps={
-        # "cel": cel(),
-        # "googleapis": googleapis(),
+        "cel": cel(),
+        "googleapis": googleapis(),
     },
 )
 opencensus = lambda: remote_repo(
@@ -44,13 +44,13 @@ opencensus = lambda: remote_repo(
 otel = lambda: remote_repo(
     url="github.com/open-telemetry/opentelemetry-proto",
     tag="v1.3.1",
-    additional_proto_dirs=["."],
+    source_path=".",
 )
 envoy = lambda: remote_repo(
     url="github.com/envoyproxy/data-plane-api",
     commit="54a58fd",
     # load protos from repo's root (default is to load from `/src`)
-    additional_proto_dirs=["."],
+    source_path=".",
     # patterns to exclude (mainly to avoid proto files duplications)
     exclude_file_regexps=[
         "^google/.*",
@@ -58,9 +58,9 @@ envoy = lambda: remote_repo(
     ],
     deps={
         "xds_proto": xds_proto(),
-        "cel": cel(),
+        # "cel": cel(),
         "opencensus": opencensus(),
-        "googleapis": googleapis(),
+        # "googleapis": googleapis(),
         "prometheus": prometheus(),
         "otel": otel(),
     },
@@ -68,14 +68,8 @@ envoy = lambda: remote_repo(
 ratelimit = remote_repo(
     url="github.com/envoyproxy/ratelimit",
     commit="19f2079",
-    additional_proto_dirs=["api"],
+    source_path="api",
     exclude_file_regexps=["^google/.*"],
     deps={"envoy": envoy()},
 )
 
-
-# Uncomment this in order to get the xds helpers
-# xds = remote_repo(
-#     url="github.com/protoconf/protoconf-xds",
-#     tag="v0.1.2",
-# )
