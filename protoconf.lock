@@ -9,6 +9,9 @@
       "excludeFileRegexps":  [
         "^google/.*"
       ],
+      "integrity":  "h1:4nAPNl8pky8HZ2bWJFMnn5yWqxOmrxfq2+1wXP8NmuQ=",
+      "getterUrl":  "git::https://github.com/envoyproxy/ratelimit.git?depth=0&ref=19f2079",
+      "fileDescriptorSetSum":  "0accf6bffb8bc89eb8b0a484d7de760c",
       "deps":  {
         "envoy":  {
           "label":  "com_github_envoyproxy_data_plane_api_54a58fd",
@@ -19,6 +22,9 @@
             "^google/.*",
             "^bazel/.*"
           ],
+          "integrity":  "h1:nDWR+nz8fagoFDPTaUtNKoXHUwal4LzmyxDxexPiVck=",
+          "getterUrl":  "git::https://github.com/envoyproxy/data-plane-api.git?depth=0&ref=54a58fd",
+          "fileDescriptorSetSum":  "a1d5c8f1ea5c1caa2234f08e644803bb",
           "deps":  {
             "opencensus":  {
               "label":  "com_github_census_instrumentation_opencensus_proto_v0_4_1",
@@ -27,7 +33,7 @@
               "sourcePath":  "src",
               "integrity":  "h1:TfeSh78Jye4T7OqV3YUlvvBYAYAWwZGSbC2GkTBpGdA=",
               "getterUrl":  "git::https://github.com/census-instrumentation/opencensus-proto.git?depth=0&ref=v0.4.1",
-              "fileDescriptorSetSum":  "30d8dc8cb261a6a4ffd9b527063ee89a"
+              "fileDescriptorSetSum":  "6a5e729b1013d6a8cc03176614d7c44a"
             },
             "otel":  {
               "label":  "com_github_open_telemetry_opentelemetry_proto_v1_3_1",
@@ -36,7 +42,7 @@
               "sourcePath":  ".",
               "integrity":  "h1:CHUKoGH8D7SDH36PLVvS0lIGjtZNzGmJgJqpdrf9dck=",
               "getterUrl":  "git::https://github.com/open-telemetry/opentelemetry-proto.git?depth=0&ref=v1.3.1",
-              "fileDescriptorSetSum":  "4db9676cb5bb1863fb283627354d29f5"
+              "fileDescriptorSetSum":  "ed79525b8b6a7bc35ccdd482068f87dd"
             },
             "prometheus":  {
               "label":  "com_github_prometheus_client_model_v0_6_1",
@@ -45,7 +51,7 @@
               "sourcePath":  ".",
               "integrity":  "h1:geOVr6/k73EmeAgZaK9TeVVcjEY+QKev6GxJJMh+fIc=",
               "getterUrl":  "git::https://github.com/prometheus/client_model.git?depth=0&ref=v0.6.1",
-              "fileDescriptorSetSum":  "49d48e8d5149b45a9bf228d02cc81d1a"
+              "fileDescriptorSetSum":  "00e74bdc51b000f6914d9174367bb45a"
             },
             "xds_proto":  {
               "label":  "com_github_cncf_xds_555b57e",
@@ -56,6 +62,9 @@
                 "google/.*",
                 "bazel/.*"
               ],
+              "integrity":  "h1:u/sdmhV+EyTv/hylzfISZcmGef2ZIiAt7a7zWtwXBPw=",
+              "getterUrl":  "git::https://github.com/cncf/xds.git?depth=0&ref=555b57e",
+              "fileDescriptorSetSum":  "545491d9fc184023db3c010eac758ebb",
               "deps":  {
                 "cel":  {
                   "label":  "com_github_google_cel_spec_v0_15_0",
@@ -67,6 +76,9 @@
                     "^proto/test/.*",
                     "test/.*"
                   ],
+                  "integrity":  "h1:r04TSvo8jPOscMog1zdXM6ZUxi2C/FYfi7EINWy89bY=",
+                  "getterUrl":  "git::https://github.com/google/cel-spec.git?depth=0&ref=v0.15.0",
+                  "fileDescriptorSetSum":  "727fcd95c306e22af96b4fd421edc286",
                   "deps":  {
                     "googleapis":  {
                       "label":  "com_github_googleapis_googleapis",
@@ -75,12 +87,9 @@
                       "sourcePath":  ".",
                       "integrity":  "h1:gtvd4RdGUNqdph2j50kFTZOuZLfLqaVFUIyMJYMTuBo=",
                       "getterUrl":  "https://github.com/googleapis/googleapis/archive/cbe62016a4eb24e71186899b79b9a4736f858653.zip//googleapis-cbe62016a4eb24e71186899b79b9a4736f858653/?checksum=md5%3A94b23c0b21f289b3f189c77533fa7445",
-                      "fileDescriptorSetSum":  "ea87c5386fb821beb89446f31719bb55"
+                      "fileDescriptorSetSum":  "e2e7ad11d9ff27855a002509ff4bb80a"
                     }
-                  },
-                  "integrity":  "h1:r04TSvo8jPOscMog1zdXM6ZUxi2C/FYfi7EINWy89bY=",
-                  "getterUrl":  "git::https://github.com/google/cel-spec.git?depth=0&ref=v0.15.0",
-                  "fileDescriptorSetSum":  "76cd3cccd354654fd97b392baa963547"
+                  }
                 },
                 "googleapis":  {
                   "label":  "com_github_googleapis_googleapis",
@@ -89,22 +98,13 @@
                   "sourcePath":  ".",
                   "integrity":  "h1:gtvd4RdGUNqdph2j50kFTZOuZLfLqaVFUIyMJYMTuBo=",
                   "getterUrl":  "https://github.com/googleapis/googleapis/archive/cbe62016a4eb24e71186899b79b9a4736f858653.zip//googleapis-cbe62016a4eb24e71186899b79b9a4736f858653/?checksum=md5%3A94b23c0b21f289b3f189c77533fa7445",
-                  "fileDescriptorSetSum":  "ea87c5386fb821beb89446f31719bb55"
+                  "fileDescriptorSetSum":  "e2e7ad11d9ff27855a002509ff4bb80a"
                 }
-              },
-              "integrity":  "h1:u/sdmhV+EyTv/hylzfISZcmGef2ZIiAt7a7zWtwXBPw=",
-              "getterUrl":  "git::https://github.com/cncf/xds.git?depth=0&ref=555b57e",
-              "fileDescriptorSetSum":  "04ff6ae721f376a84032ec428713125c"
+              }
             }
-          },
-          "integrity":  "h1:nDWR+nz8fagoFDPTaUtNKoXHUwal4LzmyxDxexPiVck=",
-          "getterUrl":  "git::https://github.com/envoyproxy/data-plane-api.git?depth=0&ref=54a58fd",
-          "fileDescriptorSetSum":  "5a71450d8a2e9d726de4f442755726f4"
+          }
         }
-      },
-      "integrity":  "h1:4nAPNl8pky8HZ2bWJFMnn5yWqxOmrxfq2+1wXP8NmuQ=",
-      "getterUrl":  "git::https://github.com/envoyproxy/ratelimit.git?depth=0&ref=19f2079",
-      "fileDescriptorSetSum":  "115f3bc28cd8f673fe6b9b1069e7e817"
+      }
     }
   }
 }
