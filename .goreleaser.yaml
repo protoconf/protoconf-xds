@@ -64,7 +64,7 @@ brews:
     # Default is empty.
     license: "MIT"
 dockers:
-  - id: protoconf-docker
+  - id: protoconf-docker-amd64
     image_templates:
       - "protoconf/protoconf-xds:latest"
       - "protoconf/protoconf-xds:{{ .Tag }}"
@@ -72,8 +72,10 @@ dockers:
       - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
       - "ghcr.io/protoconf/protoconf-xds:latest"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-amd64"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
       - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
+    use: buildx
     dockerfile: build/Dockerfile
     build_flag_templates:
       - "--pull"
@@ -85,3 +87,32 @@ dockers:
       - "--label=org.opencontainers.image.license=MIT"
       - "--label=org.opencontainers.image.description={{.ProjectName}}"
       - "--platform=linux/amd64"
+  - id: protoconf-docker-arm64
+    image_templates:
+      - "protoconf/protoconf-xds:latest"
+      - "protoconf/protoconf-xds:{{ .Tag }}"
+      - "protoconf/protoconf-xds:v{{ .Major }}"
+      - "protoconf/protoconf-xds:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/protoconf/protoconf-xds:latest"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Major }}.{{ .Minor }}"
+    use: buildx
+    dockerfile: build/Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/protoconf/protoconf-xds"
+      - "--label=org.opencontainers.image.license=MIT"
+      - "--label=org.opencontainers.image.description={{.ProjectName}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+docker_manifests:
+  - name_template: "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-amd64"
+      - "ghcr.io/protoconf/protoconf-xds:{{ .Tag }}-arm64"
