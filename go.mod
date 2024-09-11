@@ -1,6 +1,8 @@
 module github.com/protoconf/protoconf-xds
 
-go 1.20
+go 1.21
+
+toolchain go1.23.1
 
 require (
 	github.com/avast/retry-go v3.0.0+incompatible
@@ -9,7 +11,7 @@ require (
 	github.com/protoconf/libprotoconf v0.1.0
 	github.com/protoconf/protoconf v0.1.7
 	github.com/smintz/keygroup v0.1.0
-	github.com/stephenafamo/orchestra v0.0.0-20221122233638-c6ea527f65e7
+	github.com/stephenafamo/orchestra v0.4.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.32.0
 )
@@ -20,6 +22,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
+	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.2 // indirect
