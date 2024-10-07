@@ -10,7 +10,7 @@ services:
       - ratelimit-network
 
   statsd:
-    image: prom/statsd-exporter:v0.18.0
+    image: prom/statsd-exporter:v0.27.2
     entrypoint: /bin/statsd_exporter
     command:
       - "--statsd.mapping-config=/etc/statsd-exporter/conf.yaml"
