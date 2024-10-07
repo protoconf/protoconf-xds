@@ -1,6 +1,8 @@
 module github.com/protoconf/protoconf-xds
 
-go 1.20
+go 1.21
+
+toolchain go1.23.2
 
 require (
 	github.com/avast/retry-go v3.0.0+incompatible
@@ -11,7 +13,7 @@ require (
 	github.com/smintz/keygroup v0.1.0
 	github.com/stephenafamo/orchestra v0.0.0-20221122233638-c6ea527f65e7
 	google.golang.org/grpc v1.58.3
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.35.1
 )
 
 require (
